@@ -1,0 +1,27 @@
+# Tool alias mapping: Claude Code tool names -> Codex equivalents
+# Used by adapters for deterministic regex-based rewriting of skill/context bodies.
+# Format: claude_name: codex_name
+# When codex_name starts with "shell", the tool is invoked via shell command.
+
+tools:
+  WebFetch: "shell (curl)"
+  web_fetch: "shell (curl)"
+  Edit: "apply_patch"
+  edit_file: "apply_patch"
+  Read: "shell (cat)"
+  read_file: "shell (cat)"
+  Write: "apply_patch"
+  Bash: "shell"
+  run_command: "shell"
+  Grep: "shell (grep)"
+  Glob: "shell (find)"
+  Agent: "spawn_agent"
+  AskUserQuestion: "shell (read -p)"
+  TodoWrite: "shell (echo)"
+  TaskCreate: "shell (echo)"
+  TaskUpdate: "shell (echo)"
+  NotebookEdit: "shell"
+  Monitor: "shell"
+  LSP: "shell"
+  EnterPlanMode: "shell (echo)"
+  ExitPlanMode: "shell (echo)"

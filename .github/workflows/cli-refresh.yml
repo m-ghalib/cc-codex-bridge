@@ -1,0 +1,44 @@
+name: Refresh upstream CLI docs
+
+on:
+  schedule:
+    - cron: "0 13 * * MON"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+
+      - name: Fetch upstream docs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: uv run python scripts/refresh_cli_docs.py
+
+      - name: Open PR if anything changed
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: bots/cli-refresh
+          commit-message: "chore: refresh upstream CLI docs"
+          title: "Refresh upstream CLI docs"
+          body: |
+            Weekly refresh of upstream CLI docs.
+
+            Review the diff under `docs/platform-snapshots/`. If anything
+            schema-shaped changed (frontmatter fields, hook events, settings
+            keys, tool names), update the affected adapter in
+            `src/pmkit/publish/platforms/` and bump its `pinned_version`.
+
+            If the diff is noise (release timestamps, unrelated docs churn),
+            just merge.
+          labels: cli-refresh
+          add-paths: docs/platform-snapshots/**
