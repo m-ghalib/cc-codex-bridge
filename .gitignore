@@ -1,8 +1,8 @@
-# Platform config dirs (never commit — these are the OUTPUT, not source)
-.claude/
-.codex/
-.agents/
-.gemini/
+# Platform config dirs at repo root (never commit — these are the OUTPUT, not source)
+/.claude/
+/.codex/
+/.agents/
+/.gemini/
 
 # Python
 __pycache__/

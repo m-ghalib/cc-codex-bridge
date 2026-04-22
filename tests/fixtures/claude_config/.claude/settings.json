@@ -1,0 +1,66 @@
+{
+  "env": {
+    "DEBUG": "1",
+    "API_BASE_URL": "https://api.example.com",
+    "LOG_LEVEL": "debug"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash(rm *)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Destructive command detected' >&2 && exit 2",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/log-tool-use.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/session-init.sh"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "http",
+            "url": "https://hooks.example.com/subagent-done",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Summarize what was accomplished in this session."
+          }
+        ]
+      }
+    ]
+  }
+}
