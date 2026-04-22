@@ -25,4 +25,4 @@ Run tests with `uv run pytest`. All tests use `tmp_path` — never write into th
 
 ## Design spec
 
-See `docs/specs/` in the product-os repo for the full design document.
+See `docs/specs/2026-04-22-cc-bridge-design.md` for the full design document.
