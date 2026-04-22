@@ -230,6 +230,9 @@ def test_env_translation_format() -> None:
     # Must parse as valid TOML
     parsed = tomllib.loads(env_out["content"])
     assert parsed["shell_environment_policy"]["set"]["DEBUG"] == "1"
+    assert any(
+        "active Codex config.toml" in warning for warning in env_out["warnings"]
+    )
 
 
 def test_context_root_agents_md_rewrites_tool_refs() -> None:
@@ -252,6 +255,47 @@ def test_context_scoped_rules_placed_in_nested_agents_md() -> None:
     # Scoped rules should NOT end up in root AGENTS.md
     root = _find(outputs, "AGENTS.md")
     assert "pytest fixtures" not in root["content"]
+
+
+def test_context_file_paths_route_to_containing_directory(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("# Root\n", encoding="utf-8")
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "app.py").write_text("print('ok')\n", encoding="utf-8")
+
+    outputs = codex_adapter.translate(
+        skills=[],
+        agents=[],
+        hooks={},
+        env={},
+        context={
+            "main": "",
+            "local": None,
+            "rules": [
+                {
+                    "content": "Root file rule",
+                    "paths": ["README.md"],
+                    "filename": "readme.md",
+                },
+                {
+                    "content": "Nested file rule",
+                    "paths": ["src/app.py"],
+                    "filename": "src-rule.md",
+                },
+            ],
+        },
+        project_root=tmp_path,
+    )
+
+    root = _find(outputs, "AGENTS.md")
+    nested = _find(outputs, "src/AGENTS.md")
+
+    assert "Root file rule" in root["content"]
+    assert "Nested file rule" in nested["content"]
+    assert all(
+        out["path"] not in {"README.md/AGENTS.md", "src/app.py/AGENTS.md"}
+        for out in outputs
+    )
 
 
 def test_context_unscoped_rules_appended_to_root() -> None:

@@ -1,0 +1,110 @@
+name: Claude PR Orchestrator
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+on:
+  workflow_run:
+    workflows: ["Claude Code Review"]
+    types: [completed]
+
+jobs:
+  orchestrate:
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: read
+      id-token: write
+      actions: read
+
+    steps:
+      - name: Resolve PR number
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          PR=$(gh pr list --repo "$GITHUB_REPOSITORY" \
+            --head "$HEAD_BRANCH" --state open \
+            --json number --jq '.[0].number // empty')
+          echo "number=$PR" >> "$GITHUB_OUTPUT"
+
+      - name: Count prior iterations
+        id: iter
+        if: steps.pr.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ steps.pr.outputs.number }}
+        run: |
+          COUNT=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" \
+            --json comments \
+            --jq '[.comments[] | select(.body | contains("<!-- claude-orchestrator-iter -->"))] | length')
+          COUNT=${COUNT:-0}
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          if [ "$COUNT" -lt 3 ]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout PR branch
+        if: steps.iter.outputs.proceed == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 0
+          token: ${{ secrets.CLAUDE_BOT_PAT }}
+
+      - name: Address review or merge
+        if: steps.iter.outputs.proceed == 'true'
+        uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ secrets.CLAUDE_BOT_PAT }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          additional_permissions: |
+            actions: read
+          prompt: |
+            The "Claude Code Review" workflow just finished on PR #${{ steps.pr.outputs.number }}
+            (branch: ${{ github.event.workflow_run.head_branch }}, iteration ${{ steps.iter.outputs.count }}/3).
+
+            Inspect the latest review comments, PR comments, and check results before acting:
+              gh pr view ${{ steps.pr.outputs.number }} --repo "$GITHUB_REPOSITORY" --comments
+              gh pr checks ${{ steps.pr.outputs.number }} --repo "$GITHUB_REPOSITORY"
+
+            Then do exactly one of the following:
+            - If there are blocking review comments, required fixes, or `cc-bridge-pr-check`
+              is not green, address the problems on this branch. Before pushing any fix, run:
+                uv sync --frozen --extra dev
+                uv run pytest -q
+              Push only after those commands pass. Do not merge in this case.
+            - If review feedback is non-blocking and `cc-bridge-pr-check` is green, merge the PR:
+                gh pr merge ${{ steps.pr.outputs.number }} --repo "$GITHUB_REPOSITORY" --squash --delete-branch
+
+            Do not merge while `cc-bridge-pr-check` is failing or pending.
+            Do not do both.
+          claude_args: '--allowed-tools "Bash(gh pr *),Bash(gh api *),Bash(git *),Bash(uv *),Edit,Write,Read,Glob,Grep"'
+
+      - name: Post iteration marker
+        if: steps.iter.outputs.proceed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ steps.pr.outputs.number }}
+          PRIOR: ${{ steps.iter.outputs.count }}
+        run: |
+          NEXT=$((PRIOR + 1))
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" \
+            --body "<!-- claude-orchestrator-iter --> Claude orchestrator iteration $NEXT/3 complete."
+
+      - name: Note cap reached
+        if: steps.pr.outputs.number != '' && steps.iter.outputs.proceed == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ steps.pr.outputs.number }}
+        run: |
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" \
+            --body "Claude orchestrator reached the 3-iteration cap on this PR; stopping automatic iteration. Please review manually."

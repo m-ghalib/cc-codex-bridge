@@ -281,7 +281,11 @@ def _translate_env(env: dict[str, str]) -> dict[str, Any]:
     for key in sorted(env):
         lines.append(f'set.{key} = "{_toml_escape(env[key])}"')
     content = "\n".join(lines) + "\n"
-    return {"path": ".codex/env-bridge.toml", "content": content, "warnings": []}
+    warnings = [
+        "Env bridge fragment written to .codex/env-bridge.toml; it must be "
+        "merged into an active Codex config.toml before those env vars apply"
+    ]
+    return {"path": ".codex/env-bridge.toml", "content": content, "warnings": warnings}
 
 
 def _glob_path_prefix(glob_path: str) -> str | None:
@@ -297,8 +301,27 @@ def _glob_path_prefix(glob_path: str) -> str | None:
     return "/".join(prefix)
 
 
+def _resolve_scope_prefix(raw_path: str, project_root: Path) -> str | None:
+    normalized = raw_path.strip().strip("/")
+    if not normalized:
+        return None
+
+    prefix = _glob_path_prefix(normalized)
+    if any(ch in normalized for ch in "*?["):
+        return prefix
+
+    candidate = project_root / normalized
+    if candidate.exists():
+        if candidate.is_dir():
+            return normalized
+        rel_parent = candidate.relative_to(project_root).parent
+        return None if rel_parent == Path(".") else rel_parent.as_posix()
+
+    return prefix
+
+
 def _translate_context(
-    context: dict[str, Any], tools: dict[str, str]
+    context: dict[str, Any], tools: dict[str, str], project_root: Path
 ) -> list[dict[str, Any]]:
     outputs: list[dict[str, Any]] = []
     warnings: list[str] = []
@@ -324,7 +347,7 @@ def _translate_context(
         path_list = paths if isinstance(paths, list) else [paths]
         placed = False
         for raw in path_list:
-            prefix = _glob_path_prefix(str(raw))
+            prefix = _resolve_scope_prefix(str(raw), project_root)
             if prefix is None:
                 continue
             scoped.setdefault(prefix, []).append(block)
@@ -387,6 +410,6 @@ def translate(
     if env:
         outputs.append(_translate_env(env))
 
-    outputs.extend(_translate_context(context, tools))
+    outputs.extend(_translate_context(context, tools, project_root))
 
     return outputs

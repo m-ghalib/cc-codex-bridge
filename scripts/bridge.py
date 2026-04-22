@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import difflib
 import json
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -34,14 +35,16 @@ _ACTION_MARKERS = (
     "extra file to copy",
     "substitute manually",
     "run command manually",
+    "merged into an active Codex config.toml",
 )
+_ORPHAN_SCAN_SKIP_DIRS = {".agents", ".claude", ".codex", ".git", ".jj"}
 
 
-def _run_readers(project_root: Path) -> dict[str, Any]:
+def _run_readers(project_root: Path, user_home: Path | None = None) -> dict[str, Any]:
     return {
         "skills": read_skills(project_root),
         "agents": read_agents(project_root),
-        "hooks": read_hooks(project_root),
+        "hooks": read_hooks(project_root, user_home=user_home),
         "env": read_env(project_root),
         "context": read_context(project_root),
     }
@@ -127,31 +130,36 @@ def _unified_diff(path: str, old: str, new: str) -> str:
 
 def _scan_orphan_candidates(project_root: Path) -> list[str]:
     """Scan known Codex output locations for existing files."""
-    candidates: list[str] = []
+    candidates: set[str] = set()
 
     codex_skills = project_root / ".agents" / "skills"
     if codex_skills.is_dir():
         for p in sorted(codex_skills.rglob("*")):
             if p.is_file():
-                candidates.append(str(p.relative_to(project_root)))
+                candidates.add(str(p.relative_to(project_root)))
 
     codex_dir = project_root / ".codex"
     if codex_dir.is_dir():
         for p in sorted(codex_dir.rglob("*")):
             if p.is_file():
-                candidates.append(str(p.relative_to(project_root)))
+                candidates.add(str(p.relative_to(project_root)))
 
-    for root_name in ("AGENTS.md", "AGENTS.override.md"):
-        if (project_root / root_name).is_file():
-            candidates.append(root_name)
+    for root, dirnames, filenames in os.walk(project_root):
+        dirnames[:] = sorted(d for d in dirnames if d not in _ORPHAN_SCAN_SKIP_DIRS)
+        rel_root = Path(root).relative_to(project_root)
+        for filename in filenames:
+            if filename not in {"AGENTS.md", "AGENTS.override.md"}:
+                continue
+            rel_path = rel_root / filename if rel_root != Path(".") else Path(filename)
+            candidates.add(rel_path.as_posix())
 
-    return candidates
+    return sorted(candidates)
 
 
 def _prepare(
-    target: str, project_root: Path
+    target: str, project_root: Path, user_home: Path | None = None
 ) -> tuple[list[dict[str, Any]], list[tuple[Path, Path]], list[str]]:
-    inputs = _run_readers(project_root)
+    inputs = _run_readers(project_root, user_home=user_home)
     outputs = _run_translate(target, inputs, project_root)
     extras = _collect_extra_file_copies(inputs["skills"], project_root)
     warnings: list[str] = []
@@ -160,8 +168,13 @@ def _prepare(
     return outputs, extras, warnings
 
 
-def cmd_sync(target: str, project_root: Path, dry_run: bool) -> dict[str, Any]:
-    outputs, extras, warnings = _prepare(target, project_root)
+def cmd_sync(
+    target: str,
+    project_root: Path,
+    dry_run: bool,
+    user_home: Path | None = None,
+) -> dict[str, Any]:
+    outputs, extras, warnings = _prepare(target, project_root, user_home=user_home)
     synced: list[dict[str, str]] = []
 
     for out in outputs:
@@ -205,8 +218,10 @@ def cmd_sync(target: str, project_root: Path, dry_run: bool) -> dict[str, Any]:
     }
 
 
-def cmd_diff(target: str, project_root: Path) -> dict[str, Any]:
-    outputs, extras, warnings = _prepare(target, project_root)
+def cmd_diff(
+    target: str, project_root: Path, user_home: Path | None = None
+) -> dict[str, Any]:
+    outputs, extras, warnings = _prepare(target, project_root, user_home=user_home)
     diffs: list[dict[str, str]] = []
 
     for out in outputs:
@@ -250,8 +265,10 @@ def cmd_diff(target: str, project_root: Path) -> dict[str, Any]:
     }
 
 
-def cmd_status(target: str, project_root: Path) -> dict[str, Any]:
-    outputs, extras, _warnings = _prepare(target, project_root)
+def cmd_status(
+    target: str, project_root: Path, user_home: Path | None = None
+) -> dict[str, Any]:
+    outputs, extras, _warnings = _prepare(target, project_root, user_home=user_home)
     in_sync: list[str] = []
     drifted: list[str] = []
     missing: list[str] = []
@@ -331,11 +348,16 @@ def main(argv: list[str] | None = None) -> int:
     project_root = args.project_root.resolve()
 
     if args.command == "sync":
-        report = cmd_sync(args.target, project_root, dry_run=args.dry_run)
+        report = cmd_sync(
+            args.target,
+            project_root,
+            dry_run=args.dry_run,
+            user_home=Path.home(),
+        )
         print(json.dumps(report, indent=2))
         return 0
     if args.command == "diff":
-        report = cmd_diff(args.target, project_root)
+        report = cmd_diff(args.target, project_root, user_home=Path.home())
         for entry in report["diffs"]:
             sys.stdout.write(entry["diff"])
             if not entry["diff"].endswith("\n"):
@@ -353,7 +375,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0
     if args.command == "status":
-        report = cmd_status(args.target, project_root)
+        report = cmd_status(args.target, project_root, user_home=Path.home())
         print(json.dumps(report, indent=2))
         return 0
 

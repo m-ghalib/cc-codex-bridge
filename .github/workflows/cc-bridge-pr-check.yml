@@ -1,0 +1,30 @@
+name: cc-bridge-pr-check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cc-bridge-pr-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  cc_bridge_pr_check:
+    name: cc-bridge-pr-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install repo dependencies
+        run: uv sync --frozen --extra dev
+
+      - name: Run test suite
+        run: uv run pytest -q
