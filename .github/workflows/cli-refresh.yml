@@ -12,12 +12,16 @@ permissions:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.13"
+
+      - name: Install repo dependencies
+        run: uv sync --frozen --extra dev
 
       - name: Fetch upstream docs
         env:
@@ -27,6 +31,7 @@ jobs:
       - name: Open PR if anything changed
         uses: peter-evans/create-pull-request@v6
         with:
+          token: ${{ secrets.CLAUDE_BOT_PAT }}
           branch: bots/cli-refresh
           commit-message: "chore: refresh upstream CLI docs"
           title: "Refresh upstream CLI docs"
@@ -35,10 +40,11 @@ jobs:
 
             Review the diff under `docs/platform-snapshots/`. If anything
             schema-shaped changed (frontmatter fields, hook events, settings
-            keys, tool names), update the affected adapter in
-            `src/pmkit/publish/platforms/` and bump its `pinned_version`.
+            keys, tool names, or agent docs), update the bridge logic in
+            `scripts/adapters/codex.py`, `scripts/readers/`, or
+            `docs/specs/2026-04-22-cc-bridge-design.md`.
 
-            If the diff is noise (release timestamps, unrelated docs churn),
+            If the diff is noise (release timestamps or unrelated docs churn),
             just merge.
           labels: cli-refresh
           add-paths: docs/platform-snapshots/**

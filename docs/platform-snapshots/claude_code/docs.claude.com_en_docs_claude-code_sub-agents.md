@@ -24,7 +24,13 @@ Subagents help you:
 
 Claude uses each subagent's description to decide when to delegate tasks. When you create a subagent, write a clear description so Claude knows when to use it.
 
-Claude Code includes several built-in subagents like **Explore**, **Plan**, and **general-purpose**. You can also create custom subagents to handle specific tasks. This page covers the [built-in subagents](#built-in-subagents), [how to create your own](#quickstart-create-your-first-subagent), [full configuration options](#configure-subagents), [patterns for working with subagents](#work-with-subagents), and [example subagents](#example-subagents).
+Claude Code includes several built-in subagents like **Explore**, **Plan**, and **general-purpose**. You can also create custom subagents to handle specific tasks. This page covers:
+
+* [Built-in subagents](#built-in-subagents)
+* [How to create your own](#quickstart-create-your-first-subagent)
+* [Full configuration options](#configure-subagents)
+* [Patterns for working with subagents](#work-with-subagents)
+* [Example subagents](#example-subagents)
 
 ## Built-in subagents
 
@@ -321,6 +327,15 @@ If `Agent` is omitted from the `tools` list entirely, the agent cannot spawn any
 
 Use the `mcpServers` field to give a subagent access to [MCP](/en/mcp) servers that aren't available in the main conversation. Inline servers defined here are connected when the subagent starts and disconnected when it finishes. String references share the parent session's connection.
 
+<Note>
+  The `mcpServers` field applies in both contexts where an agent file can run:
+
+  * As a subagent, spawned through the Agent tool or an @-mention
+  * As the main session, launched with [`--agent`](#invoke-subagents-explicitly) or the `agent` setting
+
+  When the agent is the main session, inline server definitions connect at startup alongside servers from [`.mcp.json`](/en/mcp) and settings files.
+</Note>
+
 Each entry in the list is either an inline server definition or a string referencing an MCP server already configured in your session:
 
 ```yaml theme={null}
@@ -361,7 +376,7 @@ The `permissionMode` field controls how the subagent handles permission prompts.
   Use `bypassPermissions` with caution. It skips permission prompts, allowing the subagent to execute operations without approval. Writes to `.git`, `.claude`, `.vscode`, `.idea`, and `.husky` directories still prompt for confirmation, except for `.claude/commands`, `.claude/agents`, and `.claude/skills`. See [permission modes](/en/permission-modes#skip-all-checks-with-bypasspermissions-mode) for details.
 </Warning>
 
-If the parent uses `bypassPermissions`, this takes precedence and cannot be overridden. If the parent uses [auto mode](/en/permission-modes#eliminate-prompts-with-auto-mode), the subagent inherits auto mode and any `permissionMode` in its frontmatter is ignored: the classifier evaluates the subagent's tool calls with the same block and allow rules as the parent session.
+If the parent uses `bypassPermissions` or `acceptEdits`, this takes precedence and cannot be overridden. If the parent uses [auto mode](/en/permission-modes#eliminate-prompts-with-auto-mode), the subagent inherits auto mode and any `permissionMode` in its frontmatter is ignored: the classifier evaluates the subagent's tool calls with the same block and allow rules as the parent session.
 
 #### Preload skills into subagents
 
@@ -380,6 +395,8 @@ Implement API endpoints. Follow the conventions and patterns from the preloaded 
 ```
 
 The full content of each skill is injected into the subagent's context, not just made available for invocation. Subagents don't inherit skills from the parent conversation; you must list them explicitly.
+
+You cannot preload skills that set [`disable-model-invocation: true`](/en/skills#control-who-invokes-a-skill), since preloading draws from the same set of skills Claude can invoke. If a listed skill is missing or disabled, Claude Code skips it and logs a warning to the debug log.
 
 <Note>
   This is the inverse of [running a skill in a subagent](/en/skills#run-skills-in-a-subagent). With `skills` in a subagent, the subagent controls the system prompt and loads skill content. With `context: fork` in a skill, the skill content is injected into the agent you specify. Both use the same underlying system.
@@ -500,7 +517,7 @@ Subagents can define [hooks](/en/hooks) that run during the subagent's lifecycle
 Define hooks directly in the subagent's markdown file. These hooks only run while that specific subagent is active and are cleaned up when it finishes.
 
 <Note>
-  Frontmatter hooks fire when the agent is spawned as a subagent through the Agent tool or an @-mention. They do not fire when the agent runs as the main session via [`--agent`](#invoke-subagents-explicitly) or the `agent` setting. For session-wide hooks, configure them in [`settings.json`](/en/hooks).
+  Frontmatter hooks fire when the agent is spawned as a subagent through the Agent tool or an @-mention, and when the agent runs as the main session via [`--agent`](#invoke-subagents-explicitly) or the `agent` setting. In the main-session case they run alongside any hooks defined in [`settings.json`](/en/hooks).
 </Note>
 
 All [hook events](/en/hooks#hook-events) are supported. The most common events for subagents are:
@@ -531,7 +548,7 @@ hooks:
 ---
 ```
 
-`Stop` hooks in frontmatter are automatically converted to `SubagentStop` events.
+When the agent is invoked as a subagent, `Stop` hooks in frontmatter are automatically converted to `SubagentStop` events.
 
 #### Project-level hooks for subagent events
 
@@ -688,7 +705,7 @@ Use **subagents** when:
 
 Consider [Skills](/en/skills) instead when you want reusable prompts or workflows that run in the main conversation context rather than isolated subagent context.
 
-For a quick question about something already in your conversation, use [`/btw`](/en/interactive-mode#side-questions-with-btw) instead of a subagent. It sees your full context but has no tool access, and the answer is discarded rather than added to history.
+For a quick question about something already in your conversation, use [`/btw`](/en/interactive-mode#side-questions-with-%2Fbtw) instead of a subagent. It sees your full context but has no tool access, and the answer is discarded rather than added to history.
 
 <Note>
   Subagents cannot spawn other subagents. If your workflow requires nested delegation, use [Skills](/en/skills) or [chain subagents](#chain-subagents) from the main conversation.

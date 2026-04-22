@@ -23,7 +23,7 @@ The translation engine is fully deterministic: Python scripts handle all config 
 | Gap handling | Emit with warning comment, report skipped items | Pragmatic — user sees what mapped and what didn't |
 | Context files | Preserve structure where possible | Root AGENTS.md + nested files for scoped rules |
 | Settings.json | Out of scope for v1 | Complex permission/sandbox model differences |
-| Doc refresh | Carry over from product-os | Keeps platform knowledge current |
+| Doc refresh | Repo-local source registry in `cc-bridge` | Keeps platform knowledge current without external adapter dependencies |
 
 ## v1 Sync Scope
 
@@ -49,7 +49,7 @@ cc-bridge/
 │       └── status/SKILL.md          # drift report
 ├── scripts/
 │   ├── bridge.py                    # orchestrator CLI
-│   ├── refresh_cli_docs.py          # platform doc refresher (carried from product-os)
+│   ├── refresh_cli_docs.py          # platform doc refresher with repo-local source registry
 │   ├── readers/
 │   │   ├── skills.py                # reads .claude/skills/
 │   │   ├── agents.py                # reads .claude/agents/
@@ -82,6 +82,10 @@ cc-bridge/
 │       └── expected_codex/          # golden-file expected output
 ├── .github/
 │   └── workflows/
+│       ├── cc-bridge-pr-check.yml   # required PR gate
+│       ├── claude-code-review.yml   # Claude review on every PR
+│       ├── claude.yml               # `@claude` issue + PR interactions
+│       ├── claude-code.yml          # Claude post-review orchestrator
 │       └── cli-refresh.yml          # weekly platform doc refresh
 ├── CLAUDE.md
 ├── README.md
@@ -262,7 +266,7 @@ Note: Codex requires `[features] codex_hooks = true` in config.toml. The sync re
 
 ### Env Vars Translation
 
-Direct `key: value` mapping. Output: `.codex/env-bridge.toml` fragment (not written to `~/.codex/config.toml` to avoid overwriting user content).
+Direct `key: value` mapping. Output: `.codex/env-bridge.toml` fragment (not written to `~/.codex/config.toml` to avoid overwriting user content). The sync report flags fragment merge as an action required because the env vars do not apply until they are merged into an active Codex config.
 
 Format:
 ```toml
@@ -328,7 +332,7 @@ Gaps (no Codex equivalent):
 
 Action required:
   Enable codex_hooks: add [features] codex_hooks = true to config.toml
-  Merge env fragment: review .codex/env-bridge.toml
+  Merge env fragment into active Codex config.toml: review .codex/env-bridge.toml
 ```
 
 ### File Safety
@@ -359,13 +363,32 @@ All tests use `tmp_path`. No writes to source tree. The entire pipeline (readers
 
 Test runner: `pytest`. Executed via `uv run pytest`.
 
-## Drift Detection
+## Automation
 
-### Platform Doc Refresh (weekly)
+Five GitHub Actions workflows are live in v1:
 
-Carried from product-os. `scripts/refresh_cli_docs.py` fetches upstream docs from Claude Code and Codex CLI official URLs. `.github/workflows/cli-refresh.yml` runs weekly (Mondays 13:00 UTC), opens a PR if content changed.
+| Workflow | Purpose | Trigger |
+|---|---|---|
+| `cc-bridge-pr-check.yml` | Required PR gate for the repo | `pull_request` on `opened`, `synchronize`, `reopened`, `ready_for_review` |
+| `claude-code-review.yml` | Claude Code PR review pass | `pull_request` on the PR trigger family |
+| `claude.yml` | `@claude` issue and PR interaction entrypoint | issue comments, PR review comments, issues, PR reviews |
+| `claude-code.yml` | Post-review Claude orchestrator with a 3-iteration cap | `workflow_run` after `Claude Code Review` succeeds |
+| `cli-refresh.yml` | Weekly/manual upstream doc refresh PRs | Monday 13:00 UTC schedule + manual dispatch |
 
-Scope: focused on config, hooks, skills, and agents documentation (not the full 21-URL crawl from product-os).
+Required GitHub secrets:
+
+- `CLAUDE_CODE_OAUTH_TOKEN`
+- `CLAUDE_BOT_PAT`
+
+Branch protection requirement:
+
+- Configure `main` so `cc-bridge-pr-check` is a required status check before merge.
+
+### Platform Doc Refresh
+
+`scripts/refresh_cli_docs.py` owns a repo-local `SOURCE_REGISTRY` of `DocSource` descriptors for the Claude Code and Codex docs that define the v1 bridge surface. `.github/workflows/cli-refresh.yml` installs repo dependencies with `uv sync --frozen --extra dev`, runs the script weekly (Mondays 13:00 UTC) and on manual dispatch, then opens a PR with `CLAUDE_BOT_PAT` so the same Claude review/orchestrator loop can process it if content changed.
+
+Scope: focused on config, hooks, skills, and agents documentation for Claude Code and Codex only. No external adapter package or Gemini source participates in the refresh path.
 
 ### Sync Drift
 
