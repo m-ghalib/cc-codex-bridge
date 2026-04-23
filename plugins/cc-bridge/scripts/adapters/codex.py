@@ -157,7 +157,7 @@ def _translate_skill(skill: dict[str, Any], tools: dict[str, str]) -> dict[str, 
 
     content = f"---\n{_format_frontmatter(new_fm)}\n---\n\n{body}"
     return {
-        "path": f".agents/skills/{skill_id}/SKILL.md",
+        "path": f".codex/skills/{skill_id}/SKILL.md",
         "content": content,
         "warnings": warnings,
     }
@@ -264,8 +264,8 @@ def _translate_hooks(hooks: dict[str, Any]) -> dict[str, Any]:
             out_hooks[codex_event] = new_entries
 
     warnings.append(
-        "Enable Codex hooks in ~/.codex/config.toml: "
-        "[features]\\ncodex_hooks = true"
+        "Enable Codex hooks in config.toml: add [features] codex_hooks = true "
+        "to project .codex/config.toml or user ~/.codex/config.toml"
     )
 
     content = json.dumps({"hooks": out_hooks}, indent=2) + "\n"
