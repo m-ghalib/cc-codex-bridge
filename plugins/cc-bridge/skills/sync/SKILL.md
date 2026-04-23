@@ -36,6 +36,12 @@ Run the bridge sync script:
 uv run python ${CLAUDE_PLUGIN_ROOT}/scripts/bridge.py sync --target codex --project-root .
 ```
 
+To also include hooks from the user's global `~/.claude/settings.json`:
+
+```
+uv run python ${CLAUDE_PLUGIN_ROOT}/scripts/bridge.py sync --target codex --project-root . --include-user-hooks
+```
+
 After running, interpret the sync report for the user:
 - Explain what was synced successfully
 - Explain any gaps (features with no Codex equivalent)
