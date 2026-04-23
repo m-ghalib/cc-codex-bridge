@@ -17,11 +17,12 @@ from Claude Code format to Codex-native format.
 
 ## Execution
 
-Always use `uv run` to execute Python scripts. Example: `uv run python scripts/bridge.py sync --target codex`
+Always use `uv run` to execute Python scripts from the plugin directory (`plugins/cc-bridge/`).
+Example: `uv run python scripts/bridge.py sync --target codex`
 
 ## Testing
 
-Run tests with `uv run pytest`. All tests use `tmp_path` — never write into the source tree.
+Run tests with `uv run pytest` from `plugins/cc-bridge/`. All tests use `tmp_path` — never write into the source tree.
 
 ## Design spec
 

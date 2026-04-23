@@ -245,6 +245,79 @@ def test_cli_sync_prints_json(project_root: Path, capsys: pytest.CaptureFixture[
     assert "warnings" in report
 
 
+def test_cli_sync_excludes_user_hooks_by_default(
+    project_root: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    user_home = tmp_path / "home"
+    user_home.mkdir()
+    _write_settings(
+        user_home,
+        {
+            "hooks": {
+                "SessionStart": [
+                    {
+                        "matcher": "",
+                        "hooks": [{"type": "command", "command": "user-only.sh"}],
+                    }
+                ]
+            }
+        },
+    )
+    rc = bridge.main(
+        ["sync", "--target", "codex", "--project-root", str(project_root)]
+    )
+    assert rc == 0
+    hooks_file = project_root / ".codex" / "hooks.json"
+    hooks = json.loads(hooks_file.read_text())
+    for entries in hooks["hooks"].values():
+        for entry in entries:
+            for h in entry["hooks"]:
+                assert h.get("command") != "user-only.sh"
+
+
+def test_cli_sync_includes_user_hooks_when_flag_set(
+    project_root: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    user_home = tmp_path / "home"
+    user_home.mkdir()
+    _write_settings(
+        user_home,
+        {
+            "hooks": {
+                "UserPromptSubmit": [
+                    {
+                        "matcher": "",
+                        "hooks": [{"type": "command", "command": "user-hook.sh"}],
+                    }
+                ]
+            }
+        },
+    )
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: user_home))
+    rc = bridge.main(
+        [
+            "sync",
+            "--target",
+            "codex",
+            "--project-root",
+            str(project_root),
+            "--include-user-hooks",
+        ]
+    )
+    assert rc == 0
+    hooks_file = project_root / ".codex" / "hooks.json"
+    hooks = json.loads(hooks_file.read_text())
+    user_prompt_hooks = hooks["hooks"].get("UserPromptSubmit", [])
+    commands = [
+        h["command"]
+        for entry in user_prompt_hooks
+        for h in entry["hooks"]
+        if "command" in h
+    ]
+    assert "user-hook.sh" in commands
+
+
 def test_cli_diff_no_writes(project_root: Path, capsys: pytest.CaptureFixture[str]) -> None:
     before = sorted(p for p in project_root.rglob("*") if p.is_file())
     rc = bridge.main(

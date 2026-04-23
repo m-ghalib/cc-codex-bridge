@@ -335,6 +335,12 @@ def _build_parser() -> argparse.ArgumentParser:
         sp = sub.add_parser(name, help=help_text)
         sp.add_argument("--target", required=True, choices=sorted(_SUPPORTED_TARGETS))
         sp.add_argument("--project-root", required=True, type=Path)
+        sp.add_argument(
+            "--include-user-hooks",
+            action="store_true",
+            default=False,
+            help="Include hooks from ~/.claude/settings.json (off by default)",
+        )
         if name == "sync":
             sp.add_argument("--dry-run", action="store_true")
 
@@ -346,18 +352,19 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     project_root = args.project_root.resolve()
+    user_home = Path.home() if args.include_user_hooks else None
 
     if args.command == "sync":
         report = cmd_sync(
             args.target,
             project_root,
             dry_run=args.dry_run,
-            user_home=Path.home(),
+            user_home=user_home,
         )
         print(json.dumps(report, indent=2))
         return 0
     if args.command == "diff":
-        report = cmd_diff(args.target, project_root, user_home=Path.home())
+        report = cmd_diff(args.target, project_root, user_home=user_home)
         for entry in report["diffs"]:
             sys.stdout.write(entry["diff"])
             if not entry["diff"].endswith("\n"):
@@ -375,7 +382,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0
     if args.command == "status":
-        report = cmd_status(args.target, project_root, user_home=Path.home())
+        report = cmd_status(args.target, project_root, user_home=user_home)
         print(json.dumps(report, indent=2))
         return 0
 

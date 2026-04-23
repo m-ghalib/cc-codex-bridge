@@ -25,6 +25,8 @@ jobs:
 
       - name: Install repo dependencies
         run: uv sync --frozen --extra dev
+        working-directory: plugins/cc-bridge
 
       - name: Run test suite
         run: uv run pytest -q
+        working-directory: plugins/cc-bridge

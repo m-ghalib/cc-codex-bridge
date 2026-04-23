@@ -1,8 +1,8 @@
 # cc-bridge
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-%3E%3D3.13-blue.svg)](pyproject.toml)
-[![Tests](https://img.shields.io/badge/tests-pytest-green.svg)](tests/)
+[![Python](https://img.shields.io/badge/python-%3E%3D3.13-blue.svg)](plugins/cc-bridge/pyproject.toml)
+[![Tests](https://img.shields.io/badge/tests-pytest-green.svg)](plugins/cc-bridge/tests/)
 
 ## What it does
 
@@ -39,7 +39,8 @@ flowchart LR
 ## Installation
 
 ```bash
-claude plugin add m-ghalib/cc-bridge
+claude plugins marketplace add m-ghalib/cc-bridge
+claude plugins install cc-bridge@cc-bridge
 ```
 
 ## Usage
@@ -59,13 +60,14 @@ Features without a Codex equivalent produce warnings, not errors — sync contin
 
 ## Development
 
-Run the test suite:
+Run the test suite from the plugin directory:
 
 ```bash
+cd plugins/cc-bridge
 uv run pytest
 ```
 
-Full design spec: [`docs/specs/2026-04-22-cc-bridge-design.md`](docs/specs/2026-04-22-cc-bridge-design.md).
+Full design spec: [`plugins/cc-bridge/docs/specs/2026-04-22-cc-bridge-design.md`](plugins/cc-bridge/docs/specs/2026-04-22-cc-bridge-design.md).
 
 ## License
 
