@@ -17,7 +17,7 @@ Preview sync changes without writing files.
 Run the bridge in dry-run mode:
 
 ```
-uv run python ${CLAUDE_SKILL_DIR}/../../../scripts/bridge.py sync --target codex --project-root . --dry-run
+uv run python ${CLAUDE_PLUGIN_ROOT}/scripts/bridge.py sync --target codex --project-root . --dry-run
 ```
 
 Present the unified diff output to the user. Explain what each change means and highlight any gaps or warnings.

@@ -6,7 +6,7 @@ from Claude Code format to Codex-native format.
 
 ## Layout
 
-- `skills/cc-bridge/` — plugin skills (sync, diff, status)
+- `skills/` — plugin skills (sync, diff, status)
 - `scripts/` — deterministic Python translation engine
   - `bridge.py` — orchestrator CLI
   - `readers/` — reads Claude Code config files

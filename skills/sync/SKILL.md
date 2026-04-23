@@ -33,7 +33,7 @@ Bridge your Claude Code configuration to Codex CLI.
 Run the bridge sync script:
 
 ```
-uv run python ${CLAUDE_SKILL_DIR}/../../../scripts/bridge.py sync --target codex --project-root .
+uv run python ${CLAUDE_PLUGIN_ROOT}/scripts/bridge.py sync --target codex --project-root .
 ```
 
 After running, interpret the sync report for the user:
