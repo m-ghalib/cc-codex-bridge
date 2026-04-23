@@ -22,11 +22,13 @@ jobs:
 
       - name: Install repo dependencies
         run: uv sync --frozen --extra dev
+        working-directory: plugins/cc-bridge
 
       - name: Fetch upstream docs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: uv run python scripts/refresh_cli_docs.py
+        working-directory: plugins/cc-bridge
 
       - name: Open PR if anything changed
         uses: peter-evans/create-pull-request@v6
@@ -38,13 +40,14 @@ jobs:
           body: |
             Weekly refresh of upstream CLI docs.
 
-            Review the diff under `docs/platform-snapshots/`. If anything
+            Review the diff under `plugins/cc-bridge/docs/platform-snapshots/`. If anything
             schema-shaped changed (frontmatter fields, hook events, settings
             keys, tool names, or agent docs), update the bridge logic in
-            `scripts/adapters/codex.py`, `scripts/readers/`, or
-            `docs/specs/2026-04-22-cc-bridge-design.md`.
+            `plugins/cc-bridge/scripts/adapters/codex.py`,
+            `plugins/cc-bridge/scripts/readers/`, or
+            `plugins/cc-bridge/docs/specs/2026-04-22-cc-bridge-design.md`.
 
             If the diff is noise (release timestamps or unrelated docs churn),
             just merge.
           labels: cli-refresh
-          add-paths: docs/platform-snapshots/**
+          add-paths: plugins/cc-bridge/docs/platform-snapshots/**

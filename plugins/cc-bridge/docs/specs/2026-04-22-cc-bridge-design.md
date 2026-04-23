@@ -29,7 +29,7 @@ The translation engine is fully deterministic: Python scripts handle all config 
 
 | Config Type | Source (Claude Code) | Target (Codex) |
 |---|---|---|
-| Skills | `.claude/skills/<name>/SKILL.md` | `.agents/skills/<name>/SKILL.md` |
+| Skills | `.claude/skills/<name>/SKILL.md` | `.codex/skills/<name>/SKILL.md` |
 | Subagents | `.claude/agents/<name>.md` | `.codex/agents/<name>.toml` |
 | Hooks | `hooks` in `.claude/settings.json` | `.codex/hooks.json` |
 | Env vars | `env` in `.claude/settings.json` | `.codex/env-bridge.toml` fragment |
@@ -43,9 +43,9 @@ cc-bridge/
 ├── .claude-plugin/
 │   └── plugin.json                  # plugin manifest
 ├── skills/
-│   ├── sync/SKILL.md            # main sync skill
-│   ├── diff/SKILL.md            # dry-run preview
-│   └── status/SKILL.md          # drift report
+│   ├── cc-codex-sync/SKILL.md       # main sync skill
+│   ├── cc-codex-diff/SKILL.md       # dry-run preview
+│   └── cc-codex-status/SKILL.md     # drift report
 ├── scripts/
 │   ├── bridge.py                    # orchestrator CLI
 │   ├── refresh_cli_docs.py          # platform doc refresher with repo-local source registry
@@ -77,8 +77,7 @@ cc-bridge/
 │   │   └── test_codex.py
 │   ├── test_bridge.py               # E2E tests
 │   └── fixtures/
-│       ├── claude_config/           # realistic .claude/ tree
-│       └── expected_codex/          # golden-file expected output
+│       └── claude_config/           # realistic .claude/ tree
 ├── .github/
 │   └── workflows/
 │       ├── cc-bridge-pr-check.yml   # required PR gate
@@ -217,7 +216,7 @@ Tool alias mapping (loaded from `mappings/tools.yaml`, applied deterministically
 - `Grep` -> `shell` (grep)
 - `Glob` -> `shell` (find)
 
-Output: `.agents/skills/<name>/SKILL.md` with Codex-native frontmatter.
+Output: `.codex/skills/<name>/SKILL.md` with Codex-native frontmatter.
 
 **Tool reference rewriting is deterministic.** The Python adapter handles both frontmatter and body translation. For the markdown body, the adapter loads `mappings/tools.yaml` and performs regex-based substitution of tool references (e.g., backtick-wrapped tool names, "use the X tool" patterns). Claude Code-specific constructs like `$ARGUMENTS` placeholders and `` !`command` `` inline exec blocks are stripped and replaced with a warning comment. This keeps the entire sync pipeline deterministic and unit-testable — no LLM involvement in file generation. The LLM role is limited to the skill layer: interpreting the sync report, explaining gaps, and suggesting workarounds to the user.
 
@@ -318,7 +317,7 @@ cc-bridge sync report
 Target: Codex CLI
 
 Synced:
-  skills/my-skill/SKILL.md -> .agents/skills/my-skill/SKILL.md
+  skills/my-skill/SKILL.md -> .codex/skills/my-skill/SKILL.md
   agents/reviewer.md -> .codex/agents/reviewer.toml
   CLAUDE.md -> AGENTS.md
   env (3 vars) -> .codex/env-bridge.toml

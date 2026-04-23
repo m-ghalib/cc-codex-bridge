@@ -77,7 +77,7 @@ def _collect_extra_file_copies(
     """Return (src, dst) pairs for skill extra files.
 
     src is an absolute source path under `.claude/skills/<id>/`. dst is a
-    target-relative path under `.agents/skills/<id>/`.
+    target-relative path under `.codex/skills/<id>/`.
     """
     copies: list[tuple[Path, Path]] = []
     skills_root = project_root / ".claude" / "skills"
