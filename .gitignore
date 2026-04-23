@@ -4,15 +4,14 @@
 /.agents/
 /.gemini/
 
-# Python
-.venv/
-__pycache__/
-*.pyc
-*.pyo
-.pytest_cache/
-*.egg-info/
-dist/
+# Node
+node_modules/
 build/
+*.tsbuildinfo
+
+# Build outputs — ignore top-level dist but commit plugin runtime artifacts.
+/dist/
+!/plugins/cc-bridge/dist/
 
 # IDE
 .vscode/

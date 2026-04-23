@@ -18,7 +18,7 @@ Report drift between Claude Code config and its Codex CLI translation.
 Run the status check:
 
 ```
-uv run python ${CLAUDE_PLUGIN_ROOT}/scripts/bridge.py status --target codex --project-root .
+node ${CLAUDE_PLUGIN_ROOT}/dist/cli.js status --target codex --project-root .
 ```
 
 Interpret the report for the user:
@@ -26,3 +26,6 @@ Interpret the report for the user:
 - What has drifted (CC config changed since last sync)
 - What's missing (CC config with no Codex output yet)
 - What features are unsupported on Codex
+
+Hooks are not tracked by `cc-codex-status`. Use the `cc-codex-sync` preflight
+to inventory and reconcile `.codex/hooks.json`.

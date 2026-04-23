@@ -1,8 +1,14 @@
 # cc-bridge: Claude Code to Codex CLI Configuration Bridge
 
 **Date:** 2026-04-22
-**Status:** Draft
+**Status:** Draft (historical)
 **Repo:** `~/GitHub/cc-bridge` (new, fresh repo with selective copy from product-os)
+
+> **Status update (2026-04-23):** The bridge implementation has since migrated
+> from Python/uv to TypeScript on Node 20 LTS, with Bun for local dev/test/build.
+> See [`docs/superpowers/specs/2026-04-23-cc-bridge-node20-migration-design.md`](../../../../docs/superpowers/specs/2026-04-23-cc-bridge-node20-migration-design.md)
+> for the migration design. The body below reflects the original Python-era
+> design intent at the time of writing.
 
 ## Overview
 

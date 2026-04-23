@@ -7,23 +7,41 @@ from Claude Code format to Codex-native format.
 ## Layout
 
     - `skills/` — plugin skills (cc-codex-sync, cc-codex-diff, cc-codex-status)
-    - `scripts/` — deterministic Python translation engine
-        - `bridge.py` — orchestrator CLI
+    - `src/` — TypeScript translation engine
+        - `cli.ts` — orchestrator CLI (sync, diff, status)
         - `readers/` — reads Claude Code config files
         - `adapters/` — translates to target platform format
-        - `mappings/` — declarative YAML mapping tables
+        - `mappings.ts` — declarative mapping tables
+        - `refresh/refresh-cli-docs.ts` — upstream doc snapshotter
+    - `dist/` — compiled Node 20 runtime artifacts (committed, consumed by skills)
     - `docs/` — platform snapshots and feature mapping
-    - `tests/` — pytest suite with fixture-based golden-file tests
+    - `tests/` — Bun test suite with fixture-based golden-file tests
+
+## Runtime
+
+    - Minimum runtime: Node 20 LTS
+    - Local dev and tests use Bun
 
 ## Execution
 
-Always use `uv run` to execute Python scripts from the plugin directory (`plugins/cc-bridge/`).
-Example: `uv run python scripts/bridge.py sync --target codex`
+Skills call the packaged runtime:
+`node ${CLAUDE_PLUGIN_ROOT}/dist/cli.js <command> --target codex --project-root .`
+
+For local development from the plugin directory:
+`bun run bridge sync --target codex --project-root /path/to/project`
+
+Hook translation is interactive-only. Plain `sync` skips hooks and reports a
+preflight-required warning; the `cc-codex-sync` skill drives the
+`hooks-inventory` command, asks the user for scope/selection/write
+mode/enablement, and then re-runs `sync --hook-plan <file>`.
 
 ## Testing
 
-Run tests with `uv run pytest` from `plugins/cc-bridge/`. All tests use `tmp_path` — never write into the source tree.
+Run tests with `bun test` from `plugins/cc-bridge/`. Tests use per-test
+temp dirs — never write into the source tree.
 
 ## Design spec
 
-See `docs/specs/2026-04-22-cc-bridge-design.md` for the full design document.
+See `docs/specs/2026-04-22-cc-bridge-design.md` for the original product design,
+and `docs/superpowers/specs/2026-04-23-cc-bridge-node20-migration-design.md`
+for the Node 20 migration plan.
