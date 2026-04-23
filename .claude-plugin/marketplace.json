@@ -1,5 +1,5 @@
 {
-  "name": "cc-bridge",
+  "name": "cc-codex-bridge",
   "owner": {
     "name": "Momin Abrar Ghalib",
     "url": "https://github.com/m-ghalib"
@@ -10,13 +10,13 @@
   },
   "plugins": [
     {
-      "name": "cc-bridge",
+      "name": "cc-codex-bridge",
       "description": "Bridge Claude Code configuration to Codex CLI — skills, subagents, hooks, env vars, context files, and rules.",
       "version": "0.1.0",
       "author": {
         "name": "Momin Abrar Ghalib"
       },
-      "source": "./plugins/cc-bridge"
+      "source": "./plugins/cc-codex-bridge"
     }
   ]
 }
