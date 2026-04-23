@@ -37,7 +37,7 @@ _ACTION_MARKERS = (
     "run command manually",
     "merged into an active Codex config.toml",
 )
-_ORPHAN_SCAN_SKIP_DIRS = {".agents", ".claude", ".codex", ".git", ".jj"}
+_ORPHAN_SCAN_SKIP_DIRS = {".claude", ".codex", ".git", ".jj"}
 
 
 def _run_readers(project_root: Path, user_home: Path | None = None) -> dict[str, Any]:
@@ -87,7 +87,7 @@ def _collect_extra_file_copies(
         for extra in skill.get("extra_files") or []:
             rel = Path(extra)
             src = src_dir / rel
-            dst = Path(".agents/skills") / skill_id / rel
+            dst = Path(".codex/skills") / skill_id / rel
             copies.append((src, dst))
     return copies
 
@@ -131,12 +131,6 @@ def _unified_diff(path: str, old: str, new: str) -> str:
 def _scan_orphan_candidates(project_root: Path) -> list[str]:
     """Scan known Codex output locations for existing files."""
     candidates: set[str] = set()
-
-    codex_skills = project_root / ".agents" / "skills"
-    if codex_skills.is_dir():
-        for p in sorted(codex_skills.rglob("*")):
-            if p.is_file():
-                candidates.add(str(p.relative_to(project_root)))
 
     codex_dir = project_root / ".codex"
     if codex_dir.is_dir():

@@ -55,7 +55,7 @@ def _run(**overrides: Any) -> list[dict[str, Any]]:
 
 def test_skill_frontmatter_keeps_name_and_combines_description() -> None:
     outputs = _run()
-    skill_out = _find(outputs, ".agents/skills/sample-skill/SKILL.md")
+    skill_out = _find(outputs, ".codex/skills/sample-skill/SKILL.md")
 
     fm, body = split_frontmatter(skill_out["content"])
     assert fm.get("name") == "sample-skill"
@@ -74,7 +74,7 @@ def test_skill_frontmatter_keeps_name_and_combines_description() -> None:
 
 def test_skill_body_tool_refs_rewritten() -> None:
     outputs = _run()
-    skill_out = _find(outputs, ".agents/skills/sample-skill/SKILL.md")
+    skill_out = _find(outputs, ".codex/skills/sample-skill/SKILL.md")
     _, body = split_frontmatter(skill_out["content"])
 
     assert "`apply_patch`" in body
@@ -89,7 +89,7 @@ def test_skill_body_tool_refs_rewritten() -> None:
 
 def test_skill_strips_arguments_placeholder() -> None:
     outputs = _run()
-    skill_out = _find(outputs, ".agents/skills/sample-skill/SKILL.md")
+    skill_out = _find(outputs, ".codex/skills/sample-skill/SKILL.md")
 
     assert "$ARGUMENTS" not in skill_out["content"]
     assert any(
@@ -115,14 +115,14 @@ def test_skill_strips_inline_exec_block(tmp_path: Path) -> None:
         context={"main": "", "local": None, "rules": []},
         project_root=tmp_path,
     )
-    skill_out = _find(outputs, ".agents/skills/exec-skill/SKILL.md")
+    skill_out = _find(outputs, ".codex/skills/exec-skill/SKILL.md")
     assert "!`ls -la`" not in skill_out["content"]
     assert any("exec block" in w for w in skill_out["warnings"])
 
 
 def test_skill_warns_for_every_dropped_field() -> None:
     outputs = _run()
-    skill_out = _find(outputs, ".agents/skills/sample-skill/SKILL.md")
+    skill_out = _find(outputs, ".codex/skills/sample-skill/SKILL.md")
 
     for dropped in ("allowed-tools", "model", "effort", "context", "paths", "shell"):
         assert any(dropped in w for w in skill_out["warnings"]), (
@@ -315,7 +315,7 @@ def test_context_local_override_emitted() -> None:
 def test_warnings_populated_everywhere() -> None:
     outputs = _run()
     # skill + agent + hooks all have warnings
-    skill_out = _find(outputs, ".agents/skills/sample-skill/SKILL.md")
+    skill_out = _find(outputs, ".codex/skills/sample-skill/SKILL.md")
     agent_out = _find(outputs, ".codex/agents/reviewer.toml")
     hooks_out = _find(outputs, ".codex/hooks.json")
 

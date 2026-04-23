@@ -1,10 +1,11 @@
 ---
-name: sync
+name: cc-codex-sync
 description: >
-  Sync Claude Code configuration to Codex CLI. Translates skills, subagents,
-  hooks, env vars, context files, and rules from Claude Code format to
-  Codex-native format. USE WHEN user says "sync to codex", "bridge my config",
-  "push config to codex", "sync config".
+  Translate and write Claude Code configuration as Codex CLI native files.
+  Converts skills, subagents, hooks, env vars, context files, and rules
+  from Claude Code format to Codex-native format and writes them to disk.
+  USE WHEN user says "sync to codex", "bridge my config",
+  "push config to codex", "sync config", "cc-codex-sync".
 allowed-tools:
   - Bash
   - Read
@@ -13,15 +14,15 @@ allowed-tools:
   - AskUserQuestion
 ---
 
-# cc-bridge sync
+# cc-codex-sync
 
-Bridge your Claude Code configuration to Codex CLI.
+Translate and write Claude Code configuration as Codex CLI native files.
 
 ## What it syncs
 
 | Source (Claude Code) | Target (Codex) |
 |---|---|
-| `.claude/skills/<name>/SKILL.md` | `.agents/skills/<name>/SKILL.md` |
+| `.claude/skills/<name>/SKILL.md` | `.codex/skills/<name>/SKILL.md` |
 | `.claude/agents/<name>.md` | `.codex/agents/<name>.toml` |
 | `hooks` in settings.json | `.codex/hooks.json` |
 | `env` in settings.json | `.codex/env-bridge.toml` |
@@ -47,3 +48,7 @@ After running, interpret the sync report for the user:
 - Explain any gaps (features with no Codex equivalent)
 - Suggest workarounds for dropped features
 - If existing files would be overwritten, show the diff and ask for confirmation before proceeding
+
+## Hooks enablement
+
+If hooks were synced, check if Codex hooks are enabled. Use `AskUserQuestion` to ask the user whether to enable hooks in the project `.codex/config.toml` or user `~/.codex/config.toml`. Then ensure `[features] codex_hooks = true` is present in the chosen file, preserving any existing keys.

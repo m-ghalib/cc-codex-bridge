@@ -40,7 +40,7 @@ def test_sync_writes_expected_files(project_root: Path) -> None:
     report = bridge.cmd_sync("codex", project_root, dry_run=False)
 
     expected_paths = {
-        ".agents/skills/sample-skill/SKILL.md",
+        ".codex/skills/sample-skill/SKILL.md",
         ".codex/agents/reviewer.toml",
         ".codex/hooks.json",
         ".codex/env-bridge.toml",
@@ -62,7 +62,7 @@ def test_sync_writes_expected_files(project_root: Path) -> None:
 def test_sync_skill_content(project_root: Path) -> None:
     bridge.cmd_sync("codex", project_root, dry_run=False)
 
-    skill_text = (project_root / ".agents/skills/sample-skill/SKILL.md").read_text()
+    skill_text = (project_root / ".codex/skills/sample-skill/SKILL.md").read_text()
     assert skill_text.startswith("---\n")
     assert "name: sample-skill" in skill_text
     assert "allowed-tools" not in skill_text.split("---", 2)[1]
