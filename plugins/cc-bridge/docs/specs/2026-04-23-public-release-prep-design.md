@@ -2,7 +2,15 @@
 
 **Date:** 2026-04-23
 **Author:** m-ghalib
-**Status:** Approved
+**Status:** Approved (historical — predates Node migration)
+
+> **Status update (2026-04-23):** The bridge runtime has since migrated from
+> Python to TypeScript on Node 20 LTS. See
+> [`docs/superpowers/specs/2026-04-23-cc-bridge-node20-migration-design.md`](../../../../docs/superpowers/specs/2026-04-23-cc-bridge-node20-migration-design.md)
+> for the migration design. The body below reflects the Python-era design intent
+> at the time of writing; references to Python badges, `uv run pytest`,
+> `pyproject.toml`, and `scripts/*.py` paths are now superseded by their Node/Bun
+> equivalents.
 
 ## Goal
 

@@ -14,10 +14,14 @@ allowed-tools:
 
 Dry-run preview of what cc-codex-sync would write, without touching any files.
 
-Run the bridge in dry-run mode:
+Run the bridge in diff mode:
 
 ```
-uv run python ${CLAUDE_PLUGIN_ROOT}/scripts/bridge.py sync --target codex --project-root . --dry-run
+node ${CLAUDE_PLUGIN_ROOT}/dist/cli.js diff --target codex --project-root .
 ```
 
 Present the unified diff output to the user. Explain what each change means and highlight any gaps or warnings.
+
+Hooks are not covered by `cc-codex-diff`. Hook drift and hook diffs are only
+reconciled via the `cc-codex-sync` preflight, which prompts the user before
+writing any `.codex/hooks.json` content.

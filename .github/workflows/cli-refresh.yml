@@ -16,18 +16,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-node@v4
         with:
-          python-version: "3.13"
+          node-version: "20"
 
-      - name: Install repo dependencies
-        run: uv sync --frozen --extra dev
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
         working-directory: plugins/cc-bridge
 
       - name: Fetch upstream docs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: uv run python scripts/refresh_cli_docs.py
+        run: bun run refresh-cli-docs
         working-directory: plugins/cc-bridge
 
       - name: Open PR if anything changed
@@ -43,8 +47,8 @@ jobs:
             Review the diff under `plugins/cc-bridge/docs/platform-snapshots/`. If anything
             schema-shaped changed (frontmatter fields, hook events, settings
             keys, tool names, or agent docs), update the bridge logic in
-            `plugins/cc-bridge/scripts/adapters/codex.py`,
-            `plugins/cc-bridge/scripts/readers/`, or
+            `plugins/cc-bridge/src/adapters/codex.ts`,
+            `plugins/cc-bridge/src/readers/`, or
             `plugins/cc-bridge/docs/specs/2026-04-22-cc-bridge-design.md`.
 
             If the diff is noise (release timestamps or unrelated docs churn),

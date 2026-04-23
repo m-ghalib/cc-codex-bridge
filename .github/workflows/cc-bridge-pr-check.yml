@@ -19,14 +19,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-node@v4
         with:
-          python-version: "3.13"
+          node-version: "20"
 
-      - name: Install repo dependencies
-        run: uv sync --frozen --extra dev
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        working-directory: plugins/cc-bridge
+
+      - name: Typecheck
+        run: bun run typecheck
         working-directory: plugins/cc-bridge
 
       - name: Run test suite
-        run: uv run pytest -q
+        run: bun test
+        working-directory: plugins/cc-bridge
+
+      - name: Verify dist is up to date
+        run: |
+          bun run build
+          # Catches both modifications to tracked dist files AND untracked dist files
+          # (e.g. newly added compiled modules that weren't committed).
+          status_output=$(git status --porcelain --untracked-files=all dist/)
+          if [ -n "$status_output" ]; then
+            echo "::error::dist/ is out of date or has untracked files. Run 'bun run build' and commit the result." >&2
+            echo "$status_output" >&2
+            git --no-pager diff dist/
+            exit 1
+          fi
         working-directory: plugins/cc-bridge
