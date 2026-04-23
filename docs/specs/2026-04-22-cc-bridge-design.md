@@ -43,10 +43,9 @@ cc-bridge/
 ├── .claude-plugin/
 │   └── plugin.json                  # plugin manifest
 ├── skills/
-│   └── cc-bridge/
-│       ├── sync/SKILL.md            # main sync skill
-│       ├── diff/SKILL.md            # dry-run preview
-│       └── status/SKILL.md          # drift report
+│   ├── sync/SKILL.md            # main sync skill
+│   ├── diff/SKILL.md            # dry-run preview
+│   └── status/SKILL.md          # drift report
 ├── scripts/
 │   ├── bridge.py                    # orchestrator CLI
 │   ├── refresh_cli_docs.py          # platform doc refresher with repo-local source registry

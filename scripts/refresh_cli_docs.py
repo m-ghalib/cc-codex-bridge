@@ -24,7 +24,7 @@ from urllib.request import Request, urlopen
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SNAPSHOT_ROOT = REPO_ROOT / "docs" / "platform-snapshots"
-USER_AGENT = "cc-bridge-refresh-cli-docs (+https://github.com/mominabrarghalib/cc-bridge)"
+USER_AGENT = "cc-bridge-refresh-cli-docs (+https://github.com/m-ghalib/cc-bridge)"
 TIMEOUT_S = 30
 
 

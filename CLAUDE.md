@@ -6,14 +6,14 @@ from Claude Code format to Codex-native format.
 
 ## Layout
 
-- `skills/` — plugin skills (sync, diff, status)
-- `scripts/` — deterministic Python translation engine
-  - `bridge.py` — orchestrator CLI
-  - `readers/` — reads Claude Code config files
-  - `adapters/` — translates to target platform format
-  - `mappings/` — declarative YAML mapping tables
-- `docs/` — platform snapshots and feature mapping
-- `tests/` — pytest suite with fixture-based golden-file tests
+    - `skills/` — plugin skills (sync, diff, status)
+    - `scripts/` — deterministic Python translation engine
+        - `bridge.py` — orchestrator CLI
+        - `readers/` — reads Claude Code config files
+        - `adapters/` — translates to target platform format
+        - `mappings/` — declarative YAML mapping tables
+    - `docs/` — platform snapshots and feature mapping
+    - `tests/` — pytest suite with fixture-based golden-file tests
 
 ## Execution
 

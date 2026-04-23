@@ -1,5 +1,10 @@
 {
   "name": "cc-bridge",
   "version": "0.1.0",
-  "description": "Bridge Claude Code configuration to Codex CLI — skills, subagents, hooks, env vars, context files, and rules"
+  "description": "Bridge Claude Code configuration to Codex CLI — skills, subagents, hooks, env vars, context files, and rules",
+  "author": "m-ghalib",
+  "license": "MIT",
+  "homepage": "https://github.com/m-ghalib/cc-bridge",
+  "repository": "https://github.com/m-ghalib/cc-bridge",
+  "keywords": ["codex", "bridge", "config", "translation", "sync"]
 }
