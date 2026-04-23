@@ -17,7 +17,7 @@ Check sync state between Claude Code and Codex CLI.
 Run the status check:
 
 ```
-uv run python ${CLAUDE_SKILL_DIR}/../../../scripts/bridge.py status --target codex --project-root .
+uv run python ${CLAUDE_PLUGIN_ROOT}/scripts/bridge.py status --target codex --project-root .
 ```
 
 Interpret the report for the user:
