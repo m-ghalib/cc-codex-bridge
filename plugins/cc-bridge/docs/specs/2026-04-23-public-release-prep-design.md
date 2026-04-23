@@ -60,9 +60,9 @@ Add fields to `.claude-plugin/plugin.json`:
 ### 5. Fix stale directory paths in design spec
 
 **File:** `docs/specs/2026-04-22-cc-bridge-design.md` lines 46-49
-**Change:** Update plugin structure diagram from `skills/cc-bridge/sync/SKILL.md`
-(nested) to `skills/sync/SKILL.md` (flattened), matching the actual repo
-structure after PR #2.
+**Change:** Update plugin structure diagram to the current skill directories:
+`skills/cc-codex-sync/SKILL.md`, `skills/cc-codex-diff/SKILL.md`, and
+`skills/cc-codex-status/SKILL.md`.
 
 ## Out of scope
 
@@ -90,9 +90,9 @@ graph LR
 
 | Config Type | Claude Code Source | Codex Output |
 |---|---|---|
-| Skills | `.claude/skills/*/SKILL.md` | `.agents/skills/*.md` |
-| Agents | `.claude/agents/*.md` | `.agents/skills/*.md` (TOML frontmatter) |
-| Hooks | `settings.json` → `hooks` | `.codex/config.toml` `[hooks]` |
-| Env vars | `settings.json` → `env` | `.codex/config.toml` `[shell_environment_policy]` |
+| Skills | `.claude/skills/*/SKILL.md` | `.codex/skills/*/SKILL.md` |
+| Agents | `.claude/agents/*.md` | `.codex/agents/*.toml` |
+| Hooks | `settings.json` → `hooks` | `.codex/hooks.json` |
+| Env vars | `settings.json` → `env` | `.codex/env-bridge.toml` |
 | Context files | `CLAUDE.md`, rules | `AGENTS.md`, nested `AGENTS.md` |
 | Rules | `.claude/rules/*.md` | `AGENTS.md` or nested `AGENTS.md` (scoped) |
