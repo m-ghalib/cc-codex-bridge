@@ -71,10 +71,15 @@ def slug_for(url: str) -> str:
     return slug
 
 
+def should_attach_github_token(url: str) -> bool:
+    parsed = urlparse(url)
+    return parsed.scheme == "https" and parsed.hostname == "api.github.com"
+
+
 def fetch(url: str) -> bytes:
     headers = {"User-Agent": USER_AGENT, "Accept": "*/*"}
     token = os.environ.get("GITHUB_TOKEN")
-    if token and "api.github.com" in url:
+    if token and should_attach_github_token(url):
         headers["Authorization"] = f"Bearer {token}"
     req = Request(url, headers=headers)
     with urlopen(req, timeout=TIMEOUT_S) as resp:

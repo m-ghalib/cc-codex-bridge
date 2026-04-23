@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from scripts import refresh_cli_docs
 
 
@@ -47,3 +49,20 @@ def test_refresh_writes_only_under_platform_snapshots(
     assert sample.read_text(encoding="utf-8") == (
         "snapshot:https://developers.openai.com/codex/skills"
     )
+
+
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    [
+        ("https://api.github.com/repos/m-ghalib/cc-bridge", True),
+        ("http://api.github.com/repos/m-ghalib/cc-bridge", False),
+        ("https://api.github.com.evil.example/repos/m-ghalib/cc-bridge", False),
+        ("https://evil.example/api.github.com", False),
+        ("https://api.github.com@evil.example/repos/m-ghalib/cc-bridge", False),
+        ("not-a-url", False),
+    ],
+)
+def test_should_attach_github_token_only_for_exact_https_api_host(
+    url: str, expected: bool
+) -> None:
+    assert refresh_cli_docs.should_attach_github_token(url) is expected
