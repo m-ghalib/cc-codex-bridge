@@ -1,19 +1,21 @@
 # cc-codex-bridge
 
+![cc-codex-bridge onboarding terminal loop](docs/assets/cc-codex-bridge-onboarding.gif)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-blue.svg)](plugins/cc-codex-bridge/package.json)
 [![Tests](https://img.shields.io/badge/tests-bun-green.svg)](plugins/cc-codex-bridge/tests/)
 
 ## Installation
 
-```bash
-claude plugins marketplace add m-ghalib/cc-codex-bridge
-claude plugins install cc-codex-bridge@cc-codex-bridge
+```text
+/plugin marketplace add m-ghalib/cc-codex-bridge
+/plugin install cc-codex-bridge@cc-codex-bridge
 ```
 
 ## Prerequisites
 
-- Claude Code installed and authenticated. The install commands above assume the `claude` CLI already works.
+- Claude Code installed and authenticated. Run the install commands above inside an authenticated Claude Code session.
 - Node 20 LTS or newer on `PATH`. The shipped skills invoke the packaged runtime as `node ${CLAUDE_PLUGIN_ROOT}/dist/cli.js ...`.
 - A target project that already contains Claude Code config to translate. `cc-codex-bridge` does not bootstrap a new `.claude/` tree or `CLAUDE.md`; it translates existing source files.
 - Codex CLI installed if you want to use the generated `.codex/...` output locally.
