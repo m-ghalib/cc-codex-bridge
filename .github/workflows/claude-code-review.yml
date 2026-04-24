@@ -9,6 +9,7 @@ on:
 
 jobs:
   claude-review:
+    if: github.actor != 'claude[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: read
