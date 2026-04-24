@@ -6,6 +6,10 @@
 [![Node](https://img.shields.io/badge/node-%3E%3D20-blue.svg)](plugins/cc-codex-bridge/package.json)
 [![Tests](https://img.shields.io/badge/tests-bun-green.svg)](plugins/cc-codex-bridge/tests/)
 
+Sync an existing Claude Code project into Codex-native config. The bridge is a
+deterministic Node 20 translator: no LLM rewrite, no new `.claude/` bootstrap,
+and no hidden hook enablement.
+
 ## Installation
 
 ```text
@@ -13,33 +17,54 @@
 /plugin install cc-codex-bridge@cc-codex-bridge
 ```
 
-## Prerequisites
+## Quick start
 
-- Claude Code installed and authenticated. Run the install commands above inside an authenticated Claude Code session.
-- Node 20 LTS or newer on `PATH`. The shipped skills invoke the packaged runtime as `node ${CLAUDE_PLUGIN_ROOT}/dist/cli.js ...`.
-- A target project that already contains Claude Code config to translate. `cc-codex-bridge` does not bootstrap a new `.claude/` tree or `CLAUDE.md`; it translates existing source files.
-- Codex CLI installed if you want to use the generated `.codex/...` output locally.
+| Goal | Use this | Result |
+|------|----------|--------|
+| Preview changes | `cc-codex-diff` | Unified diff only; no files written |
+| Sync config | `cc-codex-sync` | Writes Codex files and runs hook preflight when needed |
+| Check drift | `cc-codex-status` | Reports missing, stale, or orphaned Codex output |
 
-Supported source surfaces:
+## Translation map
 
-- `CLAUDE.md`
-- `CLAUDE.local.md`
-- `.claude/skills/*/SKILL.md`
-- `.claude/agents/*.md`
-- `.claude/rules/*.md`
-- `.claude/settings.json`
-- `.claude/settings.local.json`
+| Claude Code input | Codex output | Notes |
+|-------------------|--------------|-------|
+| `CLAUDE.md` | `AGENTS.md` | Main project instructions |
+| `CLAUDE.local.md` | `AGENTS.override.md` | Local override file |
+| `.claude/skills/*/SKILL.md` | `.codex/skills/*/SKILL.md` | Skill content plus companion files |
+| `.claude/agents/*.md` | `.codex/agents/*.toml` | Agent frontmatter/body becomes Codex TOML |
+| `.claude/rules/*.md` | `AGENTS.md` files | Scoped rules become nested Codex instructions |
+| `.claude/settings.json` (`env`) | `.codex/env-bridge.toml` | Merge into active Codex `config.toml` before use |
+| `.claude/settings.local.json` (`env`) | `.codex/env-bridge.toml` | Local env wins where Claude Code would merge it |
+| `.claude/settings.json` (`hooks`) | `.codex/hooks.json` | Interactive preflight required before write |
 
 ## What it does
 
-cc-codex-bridge is a Claude Code plugin plus a deterministic Node bridge for syncing
+`cc-codex-bridge` is a Claude Code plugin plus a packaged CLI for moving
 Claude Code configuration into Codex CLI-native files. v1 targets Codex only.
-It covers skills, agents, hooks, env vars, context files, and rules. No LLM
-sits in the translation loop.
+It translates skills, agents, hooks, env vars, context files, and rules.
 
-The bridge logic lives under `plugins/cc-codex-bridge/`. The repo root contains
-plugin marketplace metadata plus GitHub automation for tests, review, and doc
-refresh.
+```mermaid
+flowchart LR
+    A[Existing Claude Code project] --> B[Preview with cc-codex-diff]
+    B --> C[Sync with cc-codex-sync]
+    C --> D[Codex files on disk]
+    D --> E[Check drift with cc-codex-status]
+    C -. hooks found .-> F[Interactive hook preflight]
+    F --> D
+```
+
+When Codex has no equivalent for a Claude Code feature, sync continues and
+reports the skipped item plus the manual follow-up.
+
+## Prerequisites
+
+| Requirement | Why it matters |
+|-------------|----------------|
+| Claude Code installed and authenticated | Plugin install and skill execution happen inside Claude Code |
+| Node 20 LTS or newer on `PATH` | Shipped skills call `node ${CLAUDE_PLUGIN_ROOT}/dist/cli.js ...` |
+| Existing Claude Code config | The bridge translates existing files; it does not create a starter `.claude/` tree |
+| Codex CLI | Needed only when you want to use the generated `.codex/...` output locally |
 
 ## Architecture
 
@@ -57,17 +82,6 @@ flowchart LR
     CR --> AD
     AD --> OUT[Codex-native files]
 ```
-
-## What gets translated
-
-| Config Type   | Claude Code Source               | Codex Output                     |
-|---------------|----------------------------------|----------------------------------|
-| Skills        | `.claude/skills/*/SKILL.md`      | `.codex/skills/*/SKILL.md`       |
-| Agents        | `.claude/agents/*.md`            | `.codex/agents/*.toml`           |
-| Hooks         | `settings.json` → `hooks`        | `.codex/hooks.json`              |
-| Env vars      | `settings.json` → `env`          | `.codex/env-bridge.toml`         |
-| Context files | `CLAUDE.md`, `CLAUDE.local.md`   | `AGENTS.md`, `AGENTS.override.md`|
-| Rules         | `.claude/rules/*.md`             | `AGENTS.md` (scoped → nested)    |
 
 ## Repo layout
 
