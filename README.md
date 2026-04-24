@@ -80,7 +80,8 @@ flowchart LR
 
 ## Usage
 
-The plugin exposes three skills:
+The plugin exposes three skills. Invoke them directly in Claude Code with the
+plugin namespace, for example `/cc-codex-bridge:cc-codex-sync`.
 
 - `cc-codex-sync` — translate and write Codex output files
 - `cc-codex-diff` — preview the unified diff without writing files
@@ -96,15 +97,16 @@ node dist/cli.js hooks-inventory --target codex --project-root /path/to/project
 ```
 
 Hook translation is interactive-only. The bridge no longer accepts a coarse
-`--include-user-hooks` flag — instead, run the `cc-codex-sync` skill which
-walks you through scope, per-entry selection, write mode, and Codex hook
-enablement before any `.codex/hooks.json` write happens.
+`--include-user-hooks` flag — instead, run the
+`/cc-codex-bridge:cc-codex-sync` skill which walks you through scope,
+per-entry selection, write mode, and Codex hook enablement before any
+`.codex/hooks.json` write happens.
 
 ## Activation Notes
 
 - Plain `sync` skips hook translation and emits a `hook preflight required`
-  warning when Claude Code hook entries are present. Use `cc-codex-sync` to
-  translate them.
+  warning when Claude Code hook entries are present. Use
+  `/cc-codex-bridge:cc-codex-sync` to translate them.
 - The preflight writes `.codex/hooks.json` and (on request) sets
   `[features] codex_hooks = true` in the chosen `config.toml`.
 - Env vars are written to `.codex/env-bridge.toml` and do not apply until that

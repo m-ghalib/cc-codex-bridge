@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace the current multi-panel onboarding video with a short terminal-first loop that starts inside the Claude Code TUI with `/` autocomplete, shows `/plugin` marketplace install commands before `cc-codex-sync`, performs a Ghostty-style pane handoff into a Codex TUI, and holds on `$` autocomplete in the Codex prompt.
+**Goal:** Replace the current multi-panel onboarding video with a short terminal-first loop that starts inside the Claude Code TUI with `/` autocomplete, shows `/plugin` marketplace install commands before `/cc-codex-bridge:cc-codex-sync`, performs a Ghostty-style pane handoff into a Codex TUI, and holds on `$` autocomplete in the Codex prompt.
 
 **Architecture:** Keep the durable media project in `media/onboarding-video`. Store the storyboard and timings in `src/script.ts`; render the terminal animation in `src/OnboardingVideo.tsx`; keep `src/Root.tsx` as the Remotion composition boundary. The implementation is a designed terminal simulation using TUI stencils derived from live PTY captures, not an embedded live shell capture.
 
@@ -23,7 +23,8 @@
   - Hide all labels, generated-file panels, and product-tour UI.
 - Modify `media/onboarding-video/package.json`
   - Keep MP4 render for review.
-  - Add GIF render script targeting `out/cc-codex-bridge-onboarding.gif`.
+  - Add GIF render script targeting `docs/assets/cc-codex-bridge-onboarding.gif`.
+  - Keep an ignored local GIF review script under `out/`.
   - Point poster scripts at useful verification frames.
 - Modify `media/onboarding-video/README.md`
   - Update concept, commands, and verification notes to match the terminal loop.
@@ -78,9 +79,9 @@ export const claudeCommands: TypedLine[] = [
   },
   {
     prompt: '>',
-    text: 'cc-codex-sync',
+    text: '/cc-codex-bridge:cc-codex-sync',
     startFrame: 166,
-    typeFrames: 20,
+    typeFrames: 28,
   },
 ];
 
@@ -144,7 +145,7 @@ Render flow:
   - full width before `timing.splitStart`
   - split at 50/50 after `timing.splitStart`
   - first pane shrinks to zero from `closeFirstPaneStart` to `closeFirstPaneEnd`
-- `ClaudePane` shows `/` autocomplete, the `/plugin` install commands, and `cc-codex-sync`.
+- `ClaudePane` shows `/` autocomplete, the `/plugin` install commands, and `/cc-codex-bridge:cc-codex-sync`.
 - `CodexPane` shows `codex`, a short loading state, then `$` autocomplete with the same skill list.
 
 - [ ] **Step 2: Enforce visual exclusions**
@@ -175,7 +176,8 @@ Use these scripts:
 {
   "preview": "remotion studio src/index.ts",
   "render": "remotion render src/index.ts CcCodexBridgeOnboarding out/cc-codex-bridge-onboarding.mp4",
-  "render:gif": "remotion render src/index.ts CcCodexBridgeOnboarding out/cc-codex-bridge-onboarding.gif",
+  "render:gif": "remotion render src/index.ts CcCodexBridgeOnboarding ../../docs/assets/cc-codex-bridge-onboarding.gif --codec=gif --scale=0.75 --every-nth-frame=2",
+  "render:gif:review": "remotion render src/index.ts CcCodexBridgeOnboarding out/cc-codex-bridge-onboarding.gif --codec=gif --scale=0.75 --every-nth-frame=2",
   "poster": "remotion still src/index.ts CcCodexBridgeOnboarding out/poster.png --frame=430",
   "still:claude": "remotion still src/index.ts CcCodexBridgeOnboarding out/frame-claude.png --frame=18",
   "still:sync": "remotion still src/index.ts CcCodexBridgeOnboarding out/frame-sync.png --frame=286",
@@ -195,7 +197,7 @@ Use these scripts:
 Document that this is now a terminal-loop GIF media project with this flow:
 
 ```text
-Claude Code TUI -> / autocomplete -> /plugin marketplace add -> /plugin install -> cc-codex-sync -> split pane -> codex -> close first pane -> $ autocomplete
+Claude Code TUI -> / autocomplete -> /plugin marketplace add -> /plugin install -> /cc-codex-bridge:cc-codex-sync -> split pane -> codex -> close first pane -> $ autocomplete
 ```
 
 Include commands:
@@ -267,14 +269,14 @@ bun run render:gif
 Expected:
 
 - `out/cc-codex-bridge-onboarding.mp4` renders successfully.
-- `out/cc-codex-bridge-onboarding.gif` renders successfully.
+- `docs/assets/cc-codex-bridge-onboarding.gif` renders successfully.
 
 - [ ] **Step 4: Inspect repo state**
 
 Run:
 
 ```bash
-jj status
+git status --short --branch
 ```
 
 Expected: source, README, package, lockfile, spec, and plan changes are tracked; `out/` and `node_modules/` remain ignored.

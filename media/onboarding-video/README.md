@@ -4,7 +4,7 @@ This durable Remotion media project renders a terminal-first looping GIF for the
 fastest cc-codex-bridge onboarding path:
 
 ```text
-Claude Code TUI -> / autocomplete -> /plugin marketplace add -> /plugin install -> cc-codex-sync -> split pane -> Codex TUI -> close first pane -> $ autocomplete
+Claude Code TUI -> / autocomplete -> /plugin marketplace add -> /plugin install -> /cc-codex-bridge:cc-codex-sync -> split pane -> Codex TUI -> close first pane -> $ autocomplete
 ```
 
 It does not affect the bridge runtime or plugin package.
@@ -15,7 +15,7 @@ The GIF shows one real-feeling terminal workflow:
 
 1. Start inside a Claude Code-style TUI by entering `/` and showing a made-up skill autocomplete list.
 2. Add and install the Claude Code plugin with `/plugin` commands.
-3. Run `cc-codex-sync` inside Claude.
+3. Run `/cc-codex-bridge:cc-codex-sync` inside Claude.
 4. Show the minimal sync result:
    `skills synced`, `agents synced`, and `AGENTS.md updated`.
 5. Split the terminal into a second pane.
@@ -81,8 +81,14 @@ Render review video:
 bun run render
 ```
 
-Render looping GIF:
+Render and update the published README GIF:
 
 ```bash
 bun run render:gif
+```
+
+Render an ignored local review copy:
+
+```bash
+bun run render:gif:review
 ```
