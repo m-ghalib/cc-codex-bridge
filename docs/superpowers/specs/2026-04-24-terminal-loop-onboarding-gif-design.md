@@ -14,26 +14,27 @@ should answer that through motion and command output.
 
 ## Core Promise
 
-Install the plugin, run `cc-codex-sync`, open Codex, and the migrated
-`${skill}` is available.
+Install the plugin from inside Claude Code, run `cc-codex-sync`, open Codex,
+and the same migrated skill list appears behind Codex's `$` trigger.
 
 ## Storyboard
 
-1. Start on a single terminal pane.
-2. Show a quick install pre-roll:
+1. Start on a single terminal pane already inside a Claude Code-style TUI.
+2. Type `/` and show a made-up skill autocomplete list below the prompt.
+3. Run the Claude Code plugin installation commands in order:
 
-   ```bash
-   claude plugins marketplace add m-ghalib/cc-codex-bridge
-   claude plugins install cc-codex-bridge@cc-codex-bridge
+   ```text
+   /plugin marketplace add m-ghalib/cc-codex-bridge
+   /plugin install cc-codex-bridge@cc-codex-bridge
    ```
 
-3. Run the plugin skill:
+4. Run the plugin skill inside Claude:
 
-   ```bash
+   ```text
    cc-codex-sync
    ```
 
-4. Print only the minimal sync output:
+5. Print only the minimal sync output:
 
    ```text
    ok skills synced
@@ -41,31 +42,34 @@ Install the plugin, run `cc-codex-sync`, open Codex, and the migrated
    ok AGENTS.md updated
    ```
 
-5. Split the terminal into a second pane with Ghostty-style pane behavior.
-6. In the second pane, launch Codex:
+6. Split the terminal into a second pane with Ghostty-style pane behavior.
+7. In the second pane, launch a Codex-style TUI:
 
    ```bash
    codex
    ```
 
-7. Wait for the Codex prompt to load.
-8. Close the first pane.
-9. Let the Codex pane become the full focus.
-10. Type the literal placeholder:
+8. Wait for the Codex prompt to load.
+9. Close the first pane.
+10. Let the Codex pane become the full focus.
+11. Type the Codex skill trigger:
 
-    ```text
-    ${skill}
-    ```
+   ```text
+   $
+   ```
 
-11. Hold briefly on `${skill}` and let the GIF restart.
+12. Show the same skill autocomplete list below the Codex prompt and let the GIF restart.
 
 ## Visual Rules
 
 - Use a terminal-first composition.
+- Use Claude and Codex TUI stencils based on live PTY captures rather than
+  generic CSS cards.
+- Redact personal account details from captured or simulated TUI surfaces.
 - Do not show product labels, generated-file panels, shortcut captions, or
   explanatory text.
 - Do not show hook preflight in this first GIF.
-- Do not show status, diff, or file review commands.
+- Do not show status, diff, or file-review output scenes.
 - Keep pane operations visible as state changes only. Do not show keyboard
   shortcut text.
 - Keep the final frame static enough that a GIF restart feels acceptable.
@@ -73,7 +77,7 @@ Install the plugin, run `cc-codex-sync`, open Codex, and the migrated
 ## Content Rules
 
 - Treat `cc-codex-sync` as the main product moment.
-- Treat `${skill}` as a template placeholder, not an example skill name.
+- Treat `/` in Claude and `$` in Codex as matching autocomplete trigger moments.
 - Show the plugin skill command, not the underlying Node runtime command.
 - Keep sync output to three lines:
   `skills synced`, `agents synced`, and `AGENTS.md updated`.
@@ -83,18 +87,23 @@ Install the plugin, run `cc-codex-sync`, open Codex, and the migrated
 The GIF should stay short enough to loop without fatigue. A target range of
 10-15 seconds is appropriate:
 
-- Install pre-roll: 2-3 seconds
+- Claude install commands: 3-4 seconds
 - Sync command and output: 3-4 seconds
 - Pane split and Codex launch: 3-5 seconds
-- `${skill}` typing and hold: 2-3 seconds
+- `$` autocomplete hold: 2-3 seconds
 
 ## Acceptance Criteria
 
 - The rendered GIF shows the approved sequence in order.
+- The first frame starts inside Claude Code, not a shell prompt.
+- The Claude frame resembles the Claude Code TUI: orange box, welcome card,
+  prompt rail, effort indicator, and footer status.
+- The Codex frame resembles the Codex TUI: top OpenAI Codex box, model/directory
+  rows, tip area, boot/status row, prompt, and footer context.
 - The first pane closes only after Codex has loaded in the second pane.
-- The final visible state is `${skill}` typed in Codex.
+- The final visible state is `$` typed in Codex with the same skill autocomplete list visible.
 - The GIF contains no labels, generated-file panels, hook preflight, status,
-  diff, or review scenes.
+  diff, or file-review output scenes.
 - The loop restart does not hide a missing end state.
 
 ## Verification
