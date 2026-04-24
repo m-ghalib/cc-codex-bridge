@@ -1,4 +1,4 @@
-# cc-bridge Node 20 Migration Design
+# cc-codex-bridge Node 20 Migration Design
 
 Date: 2026-04-23
 Status: Approved for planning
@@ -6,7 +6,7 @@ Branch: `codex/node20-migration`
 
 ## Summary
 
-Migrate `cc-bridge` from Python to Node while preserving full feature parity for the current Codex target. The repo remains a Claude plugin repo. The bridge runtime moves to TypeScript on Node 20 LTS. Local development, test, and build workflows standardize on Bun.
+Migrate `cc-codex-bridge` from Python to Node while preserving full feature parity for the current Codex target. The repo remains a Claude plugin repo. The bridge runtime moves to TypeScript on Node 20 LTS. Local development, test, and build workflows standardize on Bun.
 
 This is a runtime replacement, not a product redesign. Existing users should see the same commands, output files, report structure, and translation behavior after the migration.
 
@@ -30,7 +30,7 @@ The current runtime is a small Python package with:
 ## Goals
 
 - Reimplement the bridge in TypeScript for Node 20 LTS
-- Preserve the Claude plugin repo shape under `plugins/cc-bridge`
+- Preserve the Claude plugin repo shape under `plugins/cc-codex-bridge`
 - Preserve full feature parity for the existing Codex bridge contract
 - Replace Python and `uv` development flows with Bun-based workflows
 - Keep the bridge deterministic and file-backed, with no LLM in the translation path
@@ -57,35 +57,35 @@ The Node rewrite keeps the current bridge shape and swaps the runtime.
 
 ### Module Layout
 
-- `plugins/cc-bridge/src/cli.ts`
+- `plugins/cc-codex-bridge/src/cli.ts`
   - Parses CLI arguments
   - Dispatches `sync`, `diff`, and `status`
   - Emits stable JSON reports
   - Owns exit codes
-- `plugins/cc-bridge/src/readers/*`
+- `plugins/cc-codex-bridge/src/readers/*`
   - Reads Claude Code source surfaces for skills, agents, hooks, env, and context
-- `plugins/cc-bridge/src/adapters/codex.ts`
+- `plugins/cc-codex-bridge/src/adapters/codex.ts`
   - Translates parsed Claude inputs into Codex-native outputs
   - Preserves warnings, mappings, and output routing
-- `plugins/cc-bridge/src/core/*`
+- `plugins/cc-codex-bridge/src/core/*`
   - Shared helpers for diffs, file writes, copies, orphan scanning, and report classification
-- `plugins/cc-bridge/src/refresh/refresh-cli-docs.ts`
+- `plugins/cc-codex-bridge/src/refresh/refresh-cli-docs.ts`
   - Reimplements the existing docs refresh behavior and host validation rules
 
 ### Package Shape
 
 Keep these surfaces:
 
-- `plugins/cc-bridge/.claude-plugin/plugin.json`
-- `plugins/cc-bridge/skills/*`
-- `plugins/cc-bridge/docs/*`
+- `plugins/cc-codex-bridge/.claude-plugin/plugin.json`
+- `plugins/cc-codex-bridge/skills/*`
+- `plugins/cc-codex-bridge/docs/*`
 
 Replace Python packaging with:
 
-- `plugins/cc-bridge/package.json`
-- `plugins/cc-bridge/tsconfig.json`
-- `plugins/cc-bridge/bun.lock`
-- `plugins/cc-bridge/dist/*` for built runtime artifacts
+- `plugins/cc-codex-bridge/package.json`
+- `plugins/cc-codex-bridge/tsconfig.json`
+- `plugins/cc-codex-bridge/bun.lock`
+- `plugins/cc-codex-bridge/dist/*` for built runtime artifacts
 
 ## Compatibility Contract
 
@@ -191,7 +191,7 @@ The bridge should fail fast on true runtime errors and stay tolerant on unsuppor
 ## Migration Plan
 
 1. Create a clean branch from `origin/main`
-2. Add TypeScript and Bun scaffolding under `plugins/cc-bridge`
+2. Add TypeScript and Bun scaffolding under `plugins/cc-codex-bridge`
 3. Port fixtures and regression tests first
 4. Reimplement readers, the Codex adapter, and the CLI until the Bun suite reaches parity
 5. Reimplement `refresh_cli_docs` behavior in Node

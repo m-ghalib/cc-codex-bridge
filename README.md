@@ -1,21 +1,23 @@
-# cc-bridge
+# cc-codex-bridge
+
+![cc-codex-bridge onboarding terminal loop](docs/assets/cc-codex-bridge-onboarding.gif)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Node](https://img.shields.io/badge/node-%3E%3D20-blue.svg)](plugins/cc-bridge/package.json)
-[![Tests](https://img.shields.io/badge/tests-bun-green.svg)](plugins/cc-bridge/tests/)
+[![Node](https://img.shields.io/badge/node-%3E%3D20-blue.svg)](plugins/cc-codex-bridge/package.json)
+[![Tests](https://img.shields.io/badge/tests-bun-green.svg)](plugins/cc-codex-bridge/tests/)
 
 ## Installation
 
-```bash
-claude plugins marketplace add m-ghalib/cc-bridge
-claude plugins install cc-bridge@cc-bridge
+```text
+/plugin marketplace add m-ghalib/cc-codex-bridge
+/plugin install cc-codex-bridge@cc-codex-bridge
 ```
 
 ## Prerequisites
 
-- Claude Code installed and authenticated. The install commands above assume the `claude` CLI already works.
+- Claude Code installed and authenticated. Run the install commands above inside an authenticated Claude Code session.
 - Node 20 LTS or newer on `PATH`. The shipped skills invoke the packaged runtime as `node ${CLAUDE_PLUGIN_ROOT}/dist/cli.js ...`.
-- A target project that already contains Claude Code config to translate. `cc-bridge` does not bootstrap a new `.claude/` tree or `CLAUDE.md`; it translates existing source files.
+- A target project that already contains Claude Code config to translate. `cc-codex-bridge` does not bootstrap a new `.claude/` tree or `CLAUDE.md`; it translates existing source files.
 - Codex CLI installed if you want to use the generated `.codex/...` output locally.
 
 Supported source surfaces:
@@ -30,12 +32,12 @@ Supported source surfaces:
 
 ## What it does
 
-cc-bridge is a Claude Code plugin plus a deterministic Node bridge for syncing
+cc-codex-bridge is a Claude Code plugin plus a deterministic Node bridge for syncing
 Claude Code configuration into Codex CLI-native files. v1 targets Codex only.
 It covers skills, agents, hooks, env vars, context files, and rules. No LLM
 sits in the translation loop.
 
-The bridge logic lives under `plugins/cc-bridge/`. The repo root contains
+The bridge logic lives under `plugins/cc-codex-bridge/`. The repo root contains
 plugin marketplace metadata plus GitHub automation for tests, review, and doc
 refresh.
 
@@ -69,11 +71,11 @@ flowchart LR
 
 ## Repo layout
 
-- `plugins/cc-bridge/` — TypeScript package, plugin manifest, skills, tests, and docs
-- `plugins/cc-bridge/src/cli.ts` — entrypoint for `sync`, `diff`, and `status`
-- `plugins/cc-bridge/dist/` — compiled Node 20 runtime used by installed skills
-- `plugins/cc-bridge/docs/specs/` — bridge design docs and feature mapping
-- `plugins/cc-bridge/docs/platform-snapshots/` — refreshed upstream Claude Code and Codex docs
+- `plugins/cc-codex-bridge/` — TypeScript package, plugin manifest, skills, tests, and docs
+- `plugins/cc-codex-bridge/src/cli.ts` — entrypoint for `sync`, `diff`, and `status`
+- `plugins/cc-codex-bridge/dist/` — compiled Node 20 runtime used by installed skills
+- `plugins/cc-codex-bridge/docs/specs/` — bridge design docs and feature mapping
+- `plugins/cc-codex-bridge/docs/platform-snapshots/` — refreshed upstream Claude Code and Codex docs
 - `.github/workflows/` — PR checks, Claude automation, CodeQL, and doc refresh
 
 ## Usage
@@ -84,7 +86,7 @@ The plugin exposes three skills:
 - `cc-codex-diff` — preview the unified diff without writing files
 - `cc-codex-status` — report drift, missing outputs, and orphaned Codex files
 
-Equivalent commands from `plugins/cc-bridge/` once installed:
+Equivalent commands from `plugins/cc-codex-bridge/` once installed:
 
 ```bash
 node dist/cli.js sync --target codex --project-root /path/to/project
@@ -112,7 +114,7 @@ enablement before any `.codex/hooks.json` write happens.
 
 Features without a Codex equivalent produce warnings, not errors. Sync keeps
 going and reports what was skipped plus any manual follow-up. See
-[`plugins/cc-bridge/docs/specs/platform-feature-mapping.md`](plugins/cc-bridge/docs/specs/platform-feature-mapping.md)
+[`plugins/cc-codex-bridge/docs/specs/platform-feature-mapping.md`](plugins/cc-codex-bridge/docs/specs/platform-feature-mapping.md)
 for the comparison matrix.
 
 ## Development
@@ -120,7 +122,7 @@ for the comparison matrix.
 Install dev dependencies and run the test suite from the plugin directory:
 
 ```bash
-cd plugins/cc-bridge
+cd plugins/cc-codex-bridge
 bun install
 bun test
 ```
@@ -128,14 +130,14 @@ bun test
 Build the dist bundle consumed by installed skills:
 
 ```bash
-cd plugins/cc-bridge
+cd plugins/cc-codex-bridge
 bun run build
 ```
 
 Refresh the upstream doc snapshots with:
 
 ```bash
-cd plugins/cc-bridge
+cd plugins/cc-codex-bridge
 bun run refresh-cli-docs
 ```
 
@@ -147,8 +149,8 @@ these repository secrets first:
 
 Core docs:
 
-- [`plugins/cc-bridge/docs/specs/2026-04-22-cc-bridge-design.md`](plugins/cc-bridge/docs/specs/2026-04-22-cc-bridge-design.md)
-- [`plugins/cc-bridge/docs/specs/platform-feature-mapping.md`](plugins/cc-bridge/docs/specs/platform-feature-mapping.md)
+- [`plugins/cc-codex-bridge/docs/specs/2026-04-22-cc-bridge-design.md`](plugins/cc-codex-bridge/docs/specs/2026-04-22-cc-bridge-design.md)
+- [`plugins/cc-codex-bridge/docs/specs/platform-feature-mapping.md`](plugins/cc-codex-bridge/docs/specs/platform-feature-mapping.md)
 - [`docs/superpowers/specs/2026-04-23-cc-bridge-node20-migration-design.md`](docs/superpowers/specs/2026-04-23-cc-bridge-node20-migration-design.md)
 
 ## License

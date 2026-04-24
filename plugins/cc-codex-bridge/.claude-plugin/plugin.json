@@ -1,0 +1,13 @@
+{
+  "name": "cc-codex-bridge",
+  "version": "0.1.0",
+  "description": "Bridge Claude Code configuration to Codex CLI — skills, subagents, hooks, env vars, context files, and rules",
+  "author": {
+    "name": "Momin Abrar Ghalib",
+    "email": "momin.abrar@gmail.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/m-ghalib/cc-codex-bridge",
+  "repository": "https://github.com/m-ghalib/cc-codex-bridge",
+  "keywords": ["codex", "bridge", "config", "translation", "sync"]
+}

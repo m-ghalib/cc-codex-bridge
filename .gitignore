@@ -11,7 +11,7 @@ build/
 
 # Build outputs — ignore top-level dist but commit plugin runtime artifacts.
 /dist/
-!/plugins/cc-bridge/dist/
+!/plugins/cc-codex-bridge/dist/
 
 # IDE
 .vscode/

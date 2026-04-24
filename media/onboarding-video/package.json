@@ -1,0 +1,28 @@
+{
+  "name": "cc-codex-bridge-onboarding-video",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "preview": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts CcCodexBridgeOnboarding out/cc-codex-bridge-onboarding.mp4",
+    "render:gif": "remotion render src/index.ts CcCodexBridgeOnboarding out/cc-codex-bridge-onboarding.gif",
+    "poster": "remotion still src/index.ts CcCodexBridgeOnboarding out/poster.png --frame=430",
+    "still:claude": "remotion still src/index.ts CcCodexBridgeOnboarding out/frame-claude.png --frame=18",
+    "still:sync": "remotion still src/index.ts CcCodexBridgeOnboarding out/frame-sync.png --frame=286",
+    "still:split": "remotion still src/index.ts CcCodexBridgeOnboarding out/frame-split.png --frame=334",
+    "still:codex": "remotion still src/index.ts CcCodexBridgeOnboarding out/frame-codex.png --frame=430",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.448",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.448"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "typescript": "^5.7.2"
+  }
+}

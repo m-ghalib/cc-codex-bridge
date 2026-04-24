@@ -77,15 +77,15 @@ jobs:
               gh pr checks ${{ steps.pr.outputs.number }} --repo "$GITHUB_REPOSITORY"
 
             Then do exactly one of the following:
-            - If there are blocking review comments, required fixes, or `cc-bridge-pr-check`
+            - If there are blocking review comments, required fixes, or `cc-codex-bridge-pr-check`
               is not green, address the problems on this branch. Before pushing any fix, run:
                 uv sync --frozen --extra dev
                 uv run pytest -q
               Push only after those commands pass. Do not merge in this case.
-            - If review feedback is non-blocking and `cc-bridge-pr-check` is green, merge the PR:
+            - If review feedback is non-blocking and `cc-codex-bridge-pr-check` is green, merge the PR:
                 gh pr merge ${{ steps.pr.outputs.number }} --repo "$GITHUB_REPOSITORY" --squash --delete-branch
 
-            Do not merge while `cc-bridge-pr-check` is failing or pending.
+            Do not merge while `cc-codex-bridge-pr-check` is failing or pending.
             Do not do both.
           claude_args: '--allowed-tools "Bash(gh pr *),Bash(gh api *),Bash(git *),Bash(uv *),Edit,Write,Read,Glob,Grep"'
 
