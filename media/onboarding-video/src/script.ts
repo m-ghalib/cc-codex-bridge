@@ -55,9 +55,9 @@ export const claudeCommands: TypedLine[] = [
   },
   {
     prompt: '>',
-    text: 'cc-codex-sync',
+    text: '/cc-codex-bridge:cc-codex-sync',
     startFrame: 166,
-    typeFrames: 20,
+    typeFrames: 28,
   },
 ];
 

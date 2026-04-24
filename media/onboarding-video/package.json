@@ -6,7 +6,8 @@
   "scripts": {
     "preview": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts CcCodexBridgeOnboarding out/cc-codex-bridge-onboarding.mp4",
-    "render:gif": "remotion render src/index.ts CcCodexBridgeOnboarding out/cc-codex-bridge-onboarding.gif",
+    "render:gif": "remotion render src/index.ts CcCodexBridgeOnboarding ../../docs/assets/cc-codex-bridge-onboarding.gif --codec=gif --scale=0.75 --every-nth-frame=2",
+    "render:gif:review": "remotion render src/index.ts CcCodexBridgeOnboarding out/cc-codex-bridge-onboarding.gif --codec=gif --scale=0.75 --every-nth-frame=2",
     "poster": "remotion still src/index.ts CcCodexBridgeOnboarding out/poster.png --frame=430",
     "still:claude": "remotion still src/index.ts CcCodexBridgeOnboarding out/frame-claude.png --frame=18",
     "still:sync": "remotion still src/index.ts CcCodexBridgeOnboarding out/frame-sync.png --frame=286",

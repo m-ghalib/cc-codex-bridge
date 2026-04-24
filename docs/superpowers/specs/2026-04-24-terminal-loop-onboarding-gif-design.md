@@ -14,8 +14,9 @@ should answer that through motion and command output.
 
 ## Core Promise
 
-Install the plugin from inside Claude Code, run `cc-codex-sync`, open Codex,
-and the same migrated skill list appears behind Codex's `$` trigger.
+Install the plugin from inside Claude Code, run
+`/cc-codex-bridge:cc-codex-sync`, open Codex, and the same migrated skill list
+appears behind Codex's `$` trigger.
 
 ## Storyboard
 
@@ -31,7 +32,7 @@ and the same migrated skill list appears behind Codex's `$` trigger.
 4. Run the plugin skill inside Claude:
 
    ```text
-   cc-codex-sync
+   /cc-codex-bridge:cc-codex-sync
    ```
 
 5. Print only the minimal sync output:
@@ -76,7 +77,7 @@ and the same migrated skill list appears behind Codex's `$` trigger.
 
 ## Content Rules
 
-- Treat `cc-codex-sync` as the main product moment.
+- Treat `/cc-codex-bridge:cc-codex-sync` as the main product moment.
 - Treat `/` in Claude and `$` in Codex as matching autocomplete trigger moments.
 - Show the plugin skill command, not the underlying Node runtime command.
 - Keep sync output to three lines:
